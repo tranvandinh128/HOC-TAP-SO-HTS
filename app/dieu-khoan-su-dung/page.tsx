@@ -3,74 +3,79 @@ import Link from "next/link";
 
 const terms = [
   {
-    title: "1. Chấp nhận điều khoản",
+    title: "1. Giới thiệu nền tảng",
     content:
-      "Khi truy cập hoặc sử dụng nền tảng HỌC TẬP SỐ (HTS), người dùng cần đọc, hiểu và tuân thủ các điều khoản được công bố. Nếu không đồng ý, người dùng có thể ngừng sử dụng các chức năng tương ứng.",
+      "HỌC TẬP SỐ (HTS) là nền tảng hỗ trợ học tập, chia sẻ kiến thức, rèn luyện kỹ năng và kết nối cộng đồng học tập. Khi truy cập hoặc sử dụng nền tảng, người dùng cần đọc, hiểu và tuân thủ các điều khoản này.",
   },
   {
     title: "2. Đối tượng sử dụng",
     content:
-      "HTS phục vụ công dân, công nhân, sinh viên, học sinh tiểu học, THCS, THPT và lực lượng vũ trang (Quân đội – Công an). Một số nội dung được mở miễn phí không cần tài khoản; các nhóm học tập khác có thể yêu cầu đăng ký và xác thực tài khoản.",
+      "Nền tảng phục vụ 7 nhóm: Công dân học tập; Công nhân học tập; Sinh viên học tập; Học sinh THPT; Học sinh THCS; Học sinh tiểu học; Lực lượng vũ trang (Quân đội – Công an). Người dùng cần sử dụng đúng nhóm và phạm vi được phép.",
   },
   {
-    title: "3. Tài khoản người dùng",
+    title: "3. Đăng ký và quản lý tài khoản",
     content:
-      "Người dùng có trách nhiệm cung cấp thông tin chính xác, bảo vệ thông tin đăng nhập và không sử dụng tài khoản của người khác khi chưa được phép. Một tài khoản có thể đăng ký nhiều nhóm học tập theo quy định. Việc đăng ký nhóm học tập không đồng nghĩa với việc được cấp quyền quản trị.",
+      "Một tài khoản có thể đăng ký nhiều nhóm học tập theo quy định. Người dùng phải cung cấp thông tin chính xác, tự chịu trách nhiệm bảo vệ tài khoản và không được sử dụng tài khoản của người khác khi chưa được phép. Đăng ký học tập không đồng nghĩa với việc được cấp quyền quản trị.",
   },
   {
-    title: "4. Quyền và trách nhiệm của người học",
+    title: "4. Quyền của người sử dụng",
     content:
-      "Người học được sử dụng các bài giảng, tài liệu, bài kiểm tra và chức năng phù hợp với nhóm đã đăng ký. Người học có trách nhiệm tuân thủ quy định học tập, không gian lận, không phát tán nội dung trái pháp luật và không xâm phạm quyền của người khác.",
+      "Người dùng được truy cập các chức năng phù hợp với nhóm học tập và quyền hạn của mình; xem bài giảng, tài liệu, tin tức, tham gia hoạt động học tập, kiểm tra và gửi phản hồi theo phạm vi hệ thống cho phép.",
   },
   {
-    title: "5. Quy định kiểm tra và thi trực tuyến",
+    title: "5. Trách nhiệm của người sử dụng",
     content:
-      "Người dự thi phải tuân thủ hướng dẫn, thời gian và quy chế của từng kỳ kiểm tra. Hệ thống có thể ghi nhận dấu hiệu bất thường để phục vụ việc xem xét. Khi phát hiện bốn lần vi phạm quy tắc giám sát, hệ thống có thể tạo cảnh báo để người có thẩm quyền kiểm tra; không tự động dừng bài thi hoặc kết luận người học trượt chỉ dựa trên cảnh báo.",
+      "Người dùng phải cung cấp thông tin trung thực, tuân thủ quy định học tập, tôn trọng cộng đồng, không phát tán nội dung trái pháp luật, không gian lận trong kiểm tra và không tìm cách truy cập trái phép dữ liệu hoặc chức năng của hệ thống.",
   },
   {
-    title: "6. Điểm danh và theo dõi học tập",
+    title: "6. Quy định về nội dung và học liệu",
     content:
-      "Chức năng điểm danh định kỳ có thể được áp dụng cho các nhóm học sinh, sinh viên và lực lượng vũ trang theo kế hoạch được phê duyệt. Việc nhận diện không thành công phải có phương án kiểm tra thủ công. Không tự động kết luận vắng mặt hoặc áp dụng hình thức xử lý khi chưa xác minh.",
+      "Bài giảng, tài liệu, hình ảnh và các nội dung trên HTS chỉ được sử dụng đúng mục đích học tập và trong phạm vi được cấp phép. Không tự ý sao chép, sửa đổi, phân phối hoặc sử dụng nội dung vi phạm quyền sở hữu trí tuệ.",
   },
   {
-    title: "7. Quy định đối với quản trị viên",
+    title: "7. Quy định về trí tuệ nhân tạo (AI)",
     content:
-      "Quản trị viên lĩnh vực chỉ được quản lý nhóm học tập thuộc phạm vi được giao. Quản trị viên không được tự nâng quyền, tự cấp quyền cho người khác hoặc can thiệp vào lĩnh vực ngoài phạm vi. Quyền quản trị được cấp theo thời hạn năm ngày; việc gia hạn phải được quản trị viên cấp cao phê duyệt.",
+      "Các nội dung do AI hỗ trợ tạo ra phải được kiểm tra trước khi công bố. AI chỉ đóng vai trò hỗ trợ nghiên cứu, biên soạn và đề xuất. AI không được tự ý xuất bản, xóa hoặc chỉnh sửa nội dung đã công bố. Người có thẩm quyền phải xem xét và chịu trách nhiệm về nội dung được duyệt.",
   },
   {
-    title: "8. Nội dung và quyền sở hữu trí tuệ",
+    title: "8. Quyền quản trị và phân quyền",
     content:
-      "Người dùng không được sao chép, phân phối, sửa đổi hoặc khai thác nội dung của HTS trái phép. Nội dung do người dùng đóng góp phải bảo đảm quyền sử dụng hợp pháp và không vi phạm quyền sở hữu trí tuệ của bên thứ ba.",
+      "Hệ thống có các vai trò người học (learner), quản trị viên lĩnh vực (field_admin) và quản trị viên cấp cao (super_admin). Quản trị viên lĩnh vực chỉ được thao tác trong phạm vi được giao. Chỉ quản trị viên cấp cao được phê duyệt, thay đổi, tạm dừng hoặc thu hồi quyền quản trị theo quy định.",
   },
   {
-    title: "9. Sử dụng trí tuệ nhân tạo",
+    title: "9. Thời hạn quyền quản trị",
     content:
-      "Các nội dung do AI hỗ trợ tạo ra phải được người có thẩm quyền kiểm tra trước khi công bố. AI không được tự ý xuất bản, sửa đổi hoặc xóa nội dung đã công bố. Người dùng không được sử dụng AI để tạo nội dung lừa đảo, vi phạm pháp luật hoặc gây tổn hại cho người khác.",
+      "Quyền quản trị viên lĩnh vực được cấp theo từng chu kỳ 5 ngày. Khi hết hạn, các chức năng quản trị bị khóa nhưng tài khoản cá nhân vẫn được duy trì. Người dùng có thể gửi yêu cầu gia hạn để quản trị viên cấp cao xem xét và phê duyệt.",
   },
   {
-    title: "10. Thanh toán và Pi Network",
+    title: "10. Bản quyền và sở hữu trí tuệ",
     content:
-      "Đối với các chức năng thương mại có hỗ trợ Pi, phương thức thanh toán được quy định là thanh toán bằng Pi theo hướng dẫn của hệ thống. Giá Pi tham chiếu từ sàn OKX, nếu được sử dụng, chỉ là giá tham khảo thị trường tại thời điểm truy vấn, không phải giá chính thức do Pi Core Team công bố. Giao dịch chỉ được xác nhận sau khi máy chủ kiểm tra hợp lệ thông tin giao dịch.",
+      "Tên gọi, thương hiệu, giao diện, mã nguồn, tài liệu và các nội dung thuộc quyền sở hữu của HTS hoặc bên cấp phép được bảo vệ theo quy định pháp luật. Người dùng không được sử dụng trái phép hoặc gây ảnh hưởng đến quyền và lợi ích hợp pháp của chủ sở hữu.",
   },
   {
-    title: "11. Hành vi bị nghiêm cấm",
+    title: "11. Bảo vệ dữ liệu và thông tin cá nhân",
     content:
-      "Nghiêm cấm xâm nhập trái phép, phá hoại hệ thống, phát tán mã độc, gian lận thi cử, giả mạo danh tính, sử dụng dữ liệu trái phép, quấy rối người dùng khác hoặc lợi dụng nền tảng cho các hoạt động vi phạm pháp luật.",
+      "HTS thực hiện việc thu thập, xử lý và lưu trữ dữ liệu theo chính sách bảo mật được công bố. Người dùng cần bảo vệ thông tin đăng nhập. Tuyệt đối không cung cấp mật khẩu ví Pi, passphrase, khóa bí mật, mã OTP hoặc thông tin xác thực nhạy cảm cho hệ thống hay bất kỳ cá nhân nào.",
   },
   {
-    title: "12. Tạm ngừng hoặc hạn chế quyền sử dụng",
+    title: "12. Giới hạn và an toàn hệ thống",
     content:
-      "HTS có thể áp dụng biện pháp hạn chế chức năng, tạm khóa hoặc xử lý tài khoản khi phát hiện dấu hiệu vi phạm theo quy trình phù hợp. Việc xử lý cần có căn cứ, ghi nhận lý do và bảo đảm quyền được tiếp nhận, giải trình hoặc khiếu nại của người dùng theo quy định.",
+      "Người dùng không được phát tán mã độc, tấn công, gây quá tải, dò tìm lỗ hổng trái phép, can thiệp dữ liệu hoặc phá hoại hoạt động của HTS. Khi phát hiện sự cố, cần thông báo cho bộ phận hỗ trợ.",
   },
   {
-    title: "13. Giới hạn trách nhiệm",
+    title: "13. Tạm ngừng hoặc chấm dứt quyền sử dụng",
     content:
-      "HTS nỗ lực duy trì hệ thống ổn định và an toàn nhưng không cam kết dịch vụ luôn hoạt động liên tục, không có lỗi hoặc gián đoạn. Các sự cố kỹ thuật sẽ được tiếp nhận và xử lý theo khả năng, mức độ ảnh hưởng và quy trình vận hành.",
+      "HTS có thể áp dụng biện pháp hạn chế hoặc tạm ngừng chức năng khi phát hiện dấu hiệu vi phạm, rủi ro bảo mật hoặc yêu cầu hợp pháp. Việc xử lý cần có căn cứ, đúng thẩm quyền và được ghi nhận theo quy trình.",
   },
   {
     title: "14. Thay đổi điều khoản",
     content:
-      "HTS có thể cập nhật điều khoản khi chức năng hoặc quy định pháp luật thay đổi. Nội dung cập nhật sẽ được công bố trên nền tảng. Người dùng nên kiểm tra định kỳ để nắm được các quy định mới.",
+      "Điều khoản có thể được cập nhật để phù hợp với chức năng, hoạt động và quy định pháp luật. Phiên bản cập nhật sẽ được công bố trên nền tảng. Người dùng nên thường xuyên theo dõi để nắm rõ các thay đổi.",
+  },
+  {
+    title: "15. Liên hệ và giải quyết phản ánh",
+    content:
+      "Khi có thắc mắc, khiếu nại hoặc cần hỗ trợ, người dùng có thể gửi thông tin qua trang Liên hệ. Các phản ánh sẽ được tiếp nhận và xem xét theo quy trình của đơn vị quản lý HTS.",
   },
 ];
 
@@ -88,9 +93,9 @@ export default function DieuKhoanSuDungPage() {
           </h1>
 
           <p className="mt-4 max-w-3xl leading-8 text-blue-50">
-            Quy định quyền lợi, trách nhiệm và nguyên tắc sử dụng
-            nền tảng HỌC TẬP SỐ dành cho người học, cộng đồng
-            và đội ngũ quản trị.
+            Quy định quyền, trách nhiệm và nguyên tắc sử dụng
+            nền tảng HỌC TẬP SỐ một cách an toàn, minh bạch
+            và hiệu quả.
           </p>
         </div>
       </section>
@@ -102,8 +107,8 @@ export default function DieuKhoanSuDungPage() {
               Nguyên tắc sử dụng HTS
             </h2>
             <p className="mt-2 text-sm leading-7 text-blue-900">
-              Học tập tích cực – Tôn trọng cộng đồng – Trung thực
-              trong kiểm tra – Bảo vệ dữ liệu – Tuân thủ pháp luật.
+              Đúng mục đích – Đúng quyền hạn – Tôn trọng bản quyền –
+              Bảo vệ dữ liệu – Cùng xây dựng cộng đồng học tập số.
             </p>
           </div>
 
@@ -128,18 +133,24 @@ export default function DieuKhoanSuDungPage() {
               Thông báo
             </h2>
             <p className="mt-2 text-sm leading-7 text-amber-900">
-              Đây là bản dự thảo điều khoản sử dụng phục vụ
-              quá trình xây dựng HTS. Trước khi áp dụng chính thức,
-              đơn vị quản lý cần rà soát, bổ sung thông tin pháp lý,
-              quy trình khiếu nại, quy định thanh toán và các
-              chính sách chuyên ngành có liên quan.
+              Đây là bản dự thảo điều khoản sử dụng phục vụ xây dựng
+              HTS. Trước khi đưa vào áp dụng chính thức, đơn vị quản lý
+              cần rà soát pháp lý, xác định chủ thể chịu trách nhiệm,
+              cơ chế tiếp nhận khiếu nại và quy trình xử lý dữ liệu.
             </p>
           </div>
 
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
-              href="/chinh-sach-bao-mat"
+              href="/quy-dinh-hoc-tap"
               className="rounded-lg bg-blue-700 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-800"
+            >
+              Quy định học tập
+            </Link>
+
+            <Link
+              href="/chinh-sach-bao-mat"
+              className="rounded-lg border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
             >
               Chính sách bảo mật
             </Link>
@@ -148,14 +159,7 @@ export default function DieuKhoanSuDungPage() {
               href="/lien-he"
               className="rounded-lg border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
             >
-              Liên hệ hỗ trợ
-            </Link>
-
-            <Link
-              href="/"
-              className="rounded-lg border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-            >
-              Về trang chủ
+              Liên hệ
             </Link>
           </div>
         </article>
