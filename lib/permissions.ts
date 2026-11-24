@@ -10,10 +10,11 @@
  * - Giáo viên
  * - Người học
  *
- * Lưu ý:
- * Đây là lớp kiểm tra nghiệp vụ TypeScript.
- * Máy chủ phải xác minh danh tính, quyền và phạm vi từ dữ liệu tin cậy.
- * Không sử dụng dữ liệu quyền do trình duyệt tự gửi lên làm căn cứ cấp quyền.
+ * Lưu ý bảo mật:
+ * - Context phải được máy chủ xác minh.
+ * - Không tin quyền do trình duyệt tự gửi.
+ * - isHtsSuperAdmin phải được máy chủ xác định.
+ * - Các hàm này không thay thế kiểm tra quyền tại API và cơ sở dữ liệu.
  */
 
 import type {
@@ -23,22 +24,22 @@ import type {
   EducationPermission,
   HtsRole,
   LearningFieldSlug,
-  ScopeType,
   UserRoleAssignment,
 } from "./types";
 
 // =====================================================
-// 1. CẤU TRÚC PHẠM VI QUẢN LÝ
+// 1. XUẤT KIỂU DỮ LIỆU TƯƠNG THÍCH
 // =====================================================
 
-/**
- * Mỗi nút mô tả một phạm vi và quan hệ cha trực tiếp.
- * Dữ liệu này phải được máy chủ tải từ cơ sở dữ liệu đã xác minh.
- *
- * Ví dụ:
- * Ngành -> Đơn vị quản lý -> Trường -> Cơ sở.
- * Trường -> Năm học -> Khối -> Lớp.
- */
+export type {
+  HtsRole,
+  AdminRequestStatus,
+  HtsFieldSlug,
+} from "./types";
+
+// =====================================================
+// 2. CẤU TRÚC PHẠM VI QUẢN LÝ
+// =====================================================
 
 export interface ScopeNode {
   scope: AccessScope;
@@ -49,13 +50,14 @@ export interface ScopeNode {
 export interface VerifiedEducationAccessContext
   extends EducationAccessContext {
   /**
-   * Danh sách quan hệ phạm vi đã được máy chủ xác minh.
+   * Danh sách phạm vi và quan hệ cha-con
+   * được máy chủ xác minh từ dữ liệu đáng tin cậy.
    */
   scopeNodes: ScopeNode[];
 }
 
 // =====================================================
-// 2. KIỂM TRA THỜI HẠN VÀ TRẠNG THÁI QUYỀN
+// 3. KIỂM TRA THỜI HẠN QUYỀN
 // =====================================================
 
 export function isAssignmentActive(
@@ -84,7 +86,7 @@ export function isAssignmentActive(
 }
 
 // =====================================================
-// 3. LẤY CÁC QUYỀN ĐANG CÓ HIỆU LỰC
+// 4. LẤY QUYỀN ĐANG CÓ HIỆU LỰC
 // =====================================================
 
 export function getActiveAssignments(
@@ -104,21 +106,34 @@ export function getActiveAssignments(
 }
 
 // =====================================================
-// 4. KIỂM TRA QUAN HỆ PHẠM VI
+// 5. HỖ TRỢ SO SÁNH PHẠM VI
 // =====================================================
+
+function scopeKey(scope: AccessScope): string {
+  return `${scope.type}:${scope.id}`;
+}
 
 function sameScope(
   first: AccessScope,
   second: AccessScope,
 ): boolean {
-  return first.type === second.type && first.id === second.id;
+  return (
+    first.type === second.type &&
+    first.id === second.id
+  );
 }
 
+// =====================================================
+// 6. KIỂM TRA QUAN HỆ PHẠM VI
+// =====================================================
+
 /**
- * Kiểm tra phạm vi được cấp có bao phủ phạm vi yêu cầu không.
+ * Phạm vi được cấp chỉ bao phủ phạm vi yêu cầu khi:
+ * - Cả hai phạm vi tồn tại.
+ * - Cả hai đang hoạt động.
+ * - Có quan hệ cha-con thực tế.
  *
- * Không tự suy luận rằng một trường có quyền với mọi lớp.
- * Phải có quan hệ cha-con thực tế trong scopeNodes.
+ * Không tự suy luận quyền giữa các tổ chức.
  */
 
 export function scopeMatches(
@@ -126,18 +141,21 @@ export function scopeMatches(
   requested: AccessScope,
   scopeNodes: ScopeNode[],
 ): boolean {
-  if (sameScope(granted, requested)) {
-    return true;
-  }
-
   const nodeMap = new Map<string, ScopeNode>();
 
   for (const node of scopeNodes) {
-    nodeMap.set(`${node.scope.type}:${node.scope.id}`, node);
+    const key = scopeKey(node.scope);
+
+    // Từ chối dữ liệu có phạm vi trùng khóa.
+    if (nodeMap.has(key)) {
+      return false;
+    }
+
+    nodeMap.set(key, node);
   }
 
-  const grantedKey = `${granted.type}:${granted.id}`;
-  const requestedKey = `${requested.type}:${requested.id}`;
+  const grantedKey = scopeKey(granted);
+  const requestedKey = scopeKey(requested);
 
   const grantedNode = nodeMap.get(grantedKey);
   const requestedNode = nodeMap.get(requestedKey);
@@ -150,12 +168,16 @@ export function scopeMatches(
     return false;
   }
 
+  // Cùng một phạm vi: vẫn phải tồn tại và hoạt động.
+  if (sameScope(granted, requested)) {
+    return true;
+  }
+
   const visited = new Set<string>();
   let current: ScopeNode | undefined = requestedNode;
 
   while (current?.parent) {
-    const parentKey =
-      `${current.parent.type}:${current.parent.id}`;
+    const parentKey = scopeKey(current.parent);
 
     if (visited.has(parentKey)) {
       return false;
@@ -163,22 +185,24 @@ export function scopeMatches(
 
     visited.add(parentKey);
 
+    const parentNode = nodeMap.get(parentKey);
+
+    if (!parentNode || !parentNode.active) {
+      return false;
+    }
+
     if (parentKey === grantedKey) {
       return true;
     }
 
-    current = nodeMap.get(parentKey);
-
-    if (!current || !current.active) {
-      return false;
-    }
+    current = parentNode;
   }
 
   return false;
 }
 
 // =====================================================
-// 5. KIỂM TRA QUYỀN THEO PHẠM VI
+// 7. KIỂM TRA QUYỀN THEO PHẠM VI
 // =====================================================
 
 export function hasEducationPermission(
@@ -186,6 +210,8 @@ export function hasEducationPermission(
   permission: EducationPermission,
   requestedScope: AccessScope,
 ): boolean {
+  // Chỉ được sử dụng khi cờ Super Admin
+  // đã được máy chủ xác minh.
   if (context.isHtsSuperAdmin) {
     return true;
   }
@@ -218,7 +244,7 @@ export function hasEducationPermission(
 }
 
 // =====================================================
-// 6. KIỂM TRA VAI TRÒ THEO PHẠM VI
+// 8. KIỂM TRA VAI TRÒ THEO PHẠM VI
 // =====================================================
 
 export function hasAnyEducationRole(
@@ -226,8 +252,10 @@ export function hasAnyEducationRole(
   roles: HtsRole[],
   requestedScope: AccessScope,
 ): boolean {
+  // Super Admin chỉ được tính là vai trò được yêu cầu
+  // khi danh sách roles có chứa super_admin.
   if (context.isHtsSuperAdmin) {
-    return true;
+    return roles.includes("super_admin");
   }
 
   const now = new Date(context.now ?? new Date().toISOString());
@@ -258,7 +286,7 @@ export function hasAnyEducationRole(
 }
 
 // =====================================================
-// 7. KIỂM TRA QUẢN TRỊ LĨNH VỰC HỌC TẬP
+// 9. QUẢN TRỊ LĨNH VỰC HỌC TẬP
 // =====================================================
 
 export function canManageLearningField(
@@ -296,7 +324,7 @@ export function canManageLearningField(
 }
 
 // =====================================================
-// 8. KIỂM TRA QUYỀN QUẢN LÝ GIÁO DỤC CẤP NGÀNH
+// 10. QUẢN LÝ GIÁO DỤC CẤP NGÀNH
 // =====================================================
 
 export function canViewSectorEducationData(
@@ -314,7 +342,7 @@ export function canViewSectorEducationData(
 }
 
 // =====================================================
-// 9. KIỂM TRA QUYỀN QUẢN LÝ NHÀ TRƯỜNG
+// 11. QUẢN LÝ NHÀ TRƯỜNG
 // =====================================================
 
 export function canManageWholeSchool(
@@ -332,7 +360,7 @@ export function canManageWholeSchool(
 }
 
 // =====================================================
-// 10. KIỂM TRA QUYỀN GIÁO VIÊN THEO LỚP
+// 12. QUYỀN GIÁO VIÊN THEO LỚP
 // =====================================================
 
 export function canTeacherWorkOnClass(
@@ -351,7 +379,7 @@ export function canTeacherWorkOnClass(
 }
 
 // =====================================================
-// 11. KIỂM TRA QUYỀN THEO MÔN HỌC
+// 13. QUYỀN THEO MÔN HỌC
 // =====================================================
 
 export function canAccessSubject(
@@ -370,7 +398,7 @@ export function canAccessSubject(
 }
 
 // =====================================================
-// 12. KIỂM TRA QUYỀN PHÊ DUYỆT
+// 14. PHÊ DUYỆT KẾT QUẢ HỌC TẬP
 // =====================================================
 
 export function canApproveAcademicResult(
@@ -387,6 +415,10 @@ export function canApproveAcademicResult(
   );
 }
 
+// =====================================================
+// 15. PHÊ DUYỆT BÁO CÁO NHÀ TRƯỜNG
+// =====================================================
+
 export function canApproveSchoolReport(
   context: VerifiedEducationAccessContext,
   schoolId: string,
@@ -402,7 +434,7 @@ export function canApproveSchoolReport(
 }
 
 // =====================================================
-// 13. KIỂM TRA QUYỀN ĐỌC NHẬT KÝ
+// 16. ĐỌC NHẬT KÝ KIỂM TOÁN
 // =====================================================
 
 export function canReadAuditLog(
@@ -417,7 +449,7 @@ export function canReadAuditLog(
 }
 
 // =====================================================
-// 14. KIỂM TRA TỔ CHỨC GIÁO DỤC
+// 17. LẤY THÔNG TIN TỔ CHỨC
 // =====================================================
 
 export function getOrganization(
@@ -429,6 +461,10 @@ export function getOrganization(
       organization.id === id && organization.active,
   );
 }
+
+// =====================================================
+// 18. KIỂM TRA QUAN HỆ TỔ CHỨC CHA - CON
+// =====================================================
 
 export function isValidOrganizationParent(
   organizations: EducationOrganization[],
