@@ -9,7 +9,7 @@ type AccessDeniedProps = {
 
 export default function AccessDenied({
   title = "Không đủ quyền truy cập",
-  message = "Tài khoản của anh/chị chưa được cấp quyền sử dụng chức năng này. Vui lòng liên hệ Quản trị cấp cao để được xem xét.",
+  message = "Tài khoản của anh/chị chưa được cấp quyền sử dụng chức năng này. Vui lòng liên hệ Quản trị viên để được hỗ trợ.",
   showHomeLink = true,
 }: AccessDeniedProps) {
   return (
@@ -18,36 +18,41 @@ export default function AccessDenied({
         role="alert"
         className="w-full max-w-lg rounded-2xl border border-red-200 bg-white p-7 text-center shadow-sm"
       >
-        <div
-          aria-hidden="true"
-          className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-100 text-2xl font-bold text-red-700"
-        >
-          !
+        <div className="mb-4 flex justify-center">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-100 text-red-600">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 8v4" />
+              <path d="M12 16h.01" />
+            </svg>
+          </div>
         </div>
 
-        <h1 className="mt-5 text-xl font-bold text-slate-800">
+        <h1 className="mb-3 text-xl font-bold text-gray-900">
           {title}
         </h1>
 
-        <p className="mt-3 text-sm leading-7 text-slate-600">
+        <p className="mb-6 text-sm leading-6 text-gray-600">
           {message}
         </p>
-
-        <div className="mt-5 rounded-lg bg-amber-50 p-4 text-left text-sm leading-6 text-amber-900">
-          <strong>Quy định phân quyền HTS:</strong>
-          <ul className="ml-5 mt-2 list-disc">
-            <li>Quản trị viên cấp thấp chỉ quản lý lĩnh vực được giao.</li>
-            <li>Chỉ Quản trị cấp cao được phê duyệt và thu hồi quyền quản trị.</li>
-            <li>Người dùng không được tự nâng cấp quyền tài khoản.</li>
-          </ul>
-        </div>
 
         {showHomeLink && (
           <Link
             href="/"
-            className="mt-6 inline-block rounded-lg bg-blue-700 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-800"
+            className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
-            Trở về trang chủ
+            Quay về trang chủ
           </Link>
         )}
       </div>
