@@ -1,99 +1,116 @@
 
 /**
- * Các kiểu dữ liệu dùng chung của nền tảng HỌC TẬP SỐ.
- * Đây là mô hình kiểu TypeScript ở phía ứng dụng, chưa phải bằng chứng
- * rằng các bảng tương ứng đã tồn tại hoặc đã được bảo vệ trong Supabase.
+ * HTS - MÔ HÌNH DỮ LIỆU TƯƠNG THÍCH
+ *
+ * Duy trì các kiểu dữ liệu cũ của nền tảng HTS,
+ * đồng thời sử dụng hệ thống kiểu dữ liệu thống nhất.
+ *
+ * Đây là mô hình TypeScript phía ứng dụng.
+ * Không tự tạo hoặc thay đổi bảng cơ sở dữ liệu.
  */
 
-import type { HtsFieldSlug, HtsRole, AdminRequestStatus } from "./permissions";
+import type {
+  HtsFieldSlug,
+  HtsRole,
+  AdminRequestStatus,
+  AccountStatus,
+  LearningGroupRegistration,
+  FieldAdminRequest,
+  AdminAuditAction,
+  AdminAuditLog,
+  ExamImportMatchStatus,
+  ExamScoreImportRow,
+} from "./types";
 
-export type AccountStatus = "active" | "suspended" | "locked";
+// =====================================================
+// 1. TÁI XUẤT KIỂU DỮ LIỆU DÙNG CHUNG
+// =====================================================
 
-export type LearningGroupRegistration = {
-  userId: string;
-  fieldSlug: HtsFieldSlug;
-  registeredAt: string;
+export type {
+  HtsFieldSlug,
+  HtsRole,
+  AdminRequestStatus,
+  AccountStatus,
+  LearningGroupRegistration,
+  FieldAdminRequest,
+  AdminAuditAction,
+  AdminAuditLog,
+  ExamImportMatchStatus,
+  ExamScoreImportRow,
 };
 
-export type FieldAdminRequest = {
-  id: string;
-  userId: string;
-  requestedField: HtsFieldSlug;
-  reason: string;
-  status: AdminRequestStatus;
-  reviewedBy: string | null;
-  reviewedAt: string | null;
-  reviewNote: string | null;
-  createdAt: string;
-};
+// =====================================================
+// 2. HỒ SƠ TÀI KHOẢN HTS
+// =====================================================
 
 export type HtsProfile = {
   id: string;
   displayName: string | null;
   email: string | null;
   phone: string | null;
+
+  // Lĩnh vực người dùng đăng ký học tập.
   registeredField: HtsFieldSlug | null;
+
+  // Vai trò hồ sơ tương thích với hệ thống cũ.
   role: HtsRole;
+
+  // Lĩnh vực được giao quản trị, nếu có.
   assignedField: HtsFieldSlug | null;
+
   accountStatus: AccountStatus;
   createdAt: string;
   updatedAt: string;
 };
 
-export type AdminAuditAction =
-  | "admin_request_submitted"
-  | "admin_request_approved"
-  | "admin_request_rejected"
-  | "admin_role_changed"
-  | "admin_role_revoked"
-  | "account_locked"
-  | "account_unlocked"
-  | "content_created"
-  | "content_updated"
-  | "content_archived"
-  | "data_exported";
+// =====================================================
+// 3. QUY TẮC NGHIỆP VỤ QUẢN TRỊ HTS
+// =====================================================
 
-export type AdminAuditLog = {
-  id: string;
-  actorUserId: string;
-  action: AdminAuditAction;
-  targetUserId: string | null;
-  targetField: HtsFieldSlug | null;
-  targetRecordId: string | null;
-  result: "success" | "rejected" | "warning";
-  details: Record<string, unknown>;
-  createdAt: string;
-};
-
-export type ExamImportMatchStatus =
-  | "matched"
-  | "missing_candidate_number"
-  | "duplicate_candidate_number"
-  | "name_mismatch"
-  | "not_found"
-  | "needs_review";
-
-export type ExamScoreImportRow = {
-  sourceRow: number;
-  candidateNumber: string;
-  fullName: string;
-  score: number | null;
-  matchStatus: ExamImportMatchStatus;
-  matchedUserId: string | null;
-};
-
-/**
- * Quy tắc nghiệp vụ nền tảng:
- * - Chỉ super_admin được phê duyệt, cấp, đổi hoặc thu hồi quyền quản trị.
- * - field_admin chỉ làm việc trong lĩnh vực được giao.
- * - Đăng ký lĩnh vực học tập không tự động cấp quyền quản trị.
- * - Mã phía trình duyệt chỉ hỗ trợ giao diện; quyền thật phải được kiểm tra
- *   ở máy chủ và chính sách RLS / hàm cơ sở dữ liệu.
- */
 export const HTS_ROLE_RULES = {
-  roles: ["learner", "field_admin", "super_admin"] as const,
-  openFields: ["cong-dan", "cong-nhan"] as const,
+  roles: [
+    "learner",
+    "field_admin",
+    "education_sector_admin",
+    "school_leadership",
+    "teacher",
+    "super_admin",
+  ] as const,
+
+  openFields: [
+    "cong-dan",
+    "cong-nhan",
+  ] as const,
+
+  excludedFromSchoolEducationReports: [
+    "cong-dan",
+    "cong-nhan",
+  ] as const,
+
   attendanceIntervalMinutes: 10,
+
   examWarningThreshold: 4,
+
   examContinuesAfterThreshold: true,
 } as const;
+
+// =====================================================
+// 4. NGUYÊN TẮC BẢO MẬT
+// =====================================================
+
+/**
+ * - Chỉ Super Admin được cấp, đổi hoặc thu hồi quyền quản trị
+ *   theo quy trình được máy chủ xác minh.
+ *
+ * - Field Admin chỉ làm việc trong lĩnh vực được giao.
+ *
+ * - Đăng ký lĩnh vực học tập không tự động cấp quyền quản trị.
+ *
+ * - Một tài khoản có thể có nhiều phân công vai trò.
+ *
+ * - Không sử dụng role trong hồ sơ phía trình duyệt
+ *   làm căn cứ duy nhất để cấp quyền.
+ *
+ * - Quyền thực tế phải được kiểm tra tại máy chủ,
+ *   API và chính sách bảo vệ dữ liệu tương ứng.
+ */
