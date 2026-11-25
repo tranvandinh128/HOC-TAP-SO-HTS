@@ -1,6 +1,6 @@
-# HỌC TẬP SỐ (HTS) – DIGITAL LEARNING
+# HỌC TẬP SỐ (HTS – DIGITAL LEARNING)
 
-**Thông điệp:** TRI THỨC SỐ CHO MỌI NGƯỜI – HỌC TẬP KHÔNG GIỚI HẠN – KẾT NỐI CỘNG ĐỒNG – KIẾN TẠO TƯƠNG LAI.
+**TRI THỨC SỐ CHO MỌI NGƯỜI – HỌC TẬP KHÔNG GIỚI HẠN – KẾT NỐI CỘNG ĐỒNG – KIẾN TẠO TƯƠNG LAI.**
 
 **Phiên bản tài liệu:** 3.0 – Bản tổng hợp yêu cầu và kiến trúc cập nhật  
 **Ngày cập nhật:** 24/11/2026  
@@ -13,6 +13,7 @@
 HỌC TẬP SỐ (HTS – Digital Learning) là nền tảng học tập số hướng tới xây dựng hệ sinh thái giáo dục, đào tạo và kết nối cộng đồng trên Internet. Dự án ứng dụng công nghệ số, trí tuệ nhân tạo (AI), cơ sở dữ liệu trực tuyến và các giải pháp quản trị hiện đại nhằm hỗ trợ người dân, công nhân, sinh viên, học sinh và lực lượng vũ trang học tập mọi lúc, mọi nơi.
 
 ### Mục tiêu
+
 - Phổ cập tri thức và thúc đẩy học tập suốt đời.
 - Xây dựng thư viện tài liệu, bài giảng và chương trình đào tạo số.
 - Hỗ trợ tự học, kiểm tra, đánh giá và theo dõi kết quả học tập.
@@ -38,6 +39,7 @@ Công dân học tập và Công nhân học tập được truy cập học t�
 ## III. KIẾN TRÚC TÀI KHOẢN VÀ QUẢN TRỊ HTS
 
 ### 1. Super Admin HTS
+
 - Quản lý cấu hình và hoạt động toàn hệ thống HTS.
 - Quản lý tài khoản và các lĩnh vực học tập.
 - Cấp, gia hạn, thu hồi các quyền quản trị theo chính sách.
@@ -47,15 +49,18 @@ Công dân học tập và Công nhân học tập được truy cập học t�
 Quy định “một tài khoản Super Admin duy nhất” trong tài liệu cũ cần được kiểm tra lại với phương án vận hành, khôi phục và an toàn tài khoản trước khi triển khai thực tế; không tự tạo hoặc thay đổi tài khoản đặc quyền bằng mã nguồn.
 
 ### 2. Quản trị cao cấp ngành Giáo dục
+
 - Được xem hồ sơ chi tiết và báo cáo trong phạm vi toàn ngành giáo dục tham gia HTS.
 - Có thể xem dữ liệu trường, cơ sở/phân hiệu, giáo viên, học sinh và báo cáo liên quan.
 - Quyền xem toàn ngành không tự động cho phép sửa, duyệt, xuất dữ liệu hoặc truy cập các lĩnh vực HTS khác.
 - Mọi quyền bổ sung phải được cấp riêng, đúng phạm vi, có thời hạn nếu cần và có nhật ký.
 
 ### 3. Quản trị cấp 1 tại trường
+
 Gồm hai nhóm quyền nghiệp vụ độc lập:
 
 **Giáo viên**
+
 - Chỉ truy cập lớp, môn học, học sinh và năm học được phân công.
 - Soạn bài giảng, học liệu, đề kiểm tra, đáp án và tiêu chí chấm.
 - Xem gợi ý chấm điểm của AI; rà soát, chỉnh sửa có lý do và xác nhận kết quả chuyên môn.
@@ -63,6 +68,7 @@ Gồm hai nhóm quyền nghiệp vụ độc lập:
 - Không tự động có quyền duyệt chính thức nếu chưa được ủy quyền.
 
 **Ban giám hiệu**
+
 - Quản lý toàn bộ trường và tất cả cơ sở/phân hiệu trực thuộc trường.
 - Quản lý giáo viên, học sinh, lớp, năm học, phân công và báo cáo của trường.
 - Phân công người có thẩm quyền duyệt theo quy chế của trường.
@@ -81,6 +87,7 @@ Cấu trúc phải linh hoạt theo tổ chức và thẩm quyền thực tế; 
 ## V. PHÂN QUYỀN VÀ KIỂM SOÁT TRUY CẬP
 
 Áp dụng kết hợp:
+
 - RBAC: vai trò nghiệp vụ.
 - Scope-based access: phạm vi trường, cơ sở, lớp, môn học, năm học.
 - Granular permissions: quyền chi tiết theo hành động.
@@ -214,3 +221,4 @@ HTS là nền tảng học tập mở và hệ sinh thái quản trị có phân
 
 **HỌC TẬP SỐ (HTS)**  
 **TRI THỨC SỐ CHO MỌI NGƯỜI – HỌC TẬP KHÔNG GIỚI HẠN – KẾT NỐI CỘNG ĐỒNG – KIẾN TẠO TƯƠNG LAI.**
+
