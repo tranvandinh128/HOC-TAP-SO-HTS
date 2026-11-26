@@ -161,7 +161,7 @@ export default function QuanLyHocVienPage() {
             Trang hiện xây dựng giao diện và cấu trúc chức năng.
             Việc thêm, sửa, tìm kiếm học viên, nhập danh sách,
             phân quyền và lưu dữ liệu thực tế sẽ được kết nối
-            Supabase trong giai đoạn hoàn thiện hệ thống.
+            với API phía máy chủ Cloudflare trong giai đoạn sau.
           </p>
         </section>
 

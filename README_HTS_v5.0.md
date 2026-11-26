@@ -107,11 +107,11 @@ Thông tin kỹ thuật theo hồ sơ sửa đổi ngày 25/11/2026 và tài li�
 - CSS: Tailwind CSS 4 (cần đối chiếu cấu hình thực tế).
 - Mã nguồn: GitHub, repository được ghi nhận là `tranvandinh128/HOC-TAP-SO-HTS`.
 - Kiến trúc mục tiêu theo bản sửa đổi: Cloudflare Workers kết hợp Cloudflare D1 (SQLite), sử dụng OpenNext Cloudflare Adapter sau khi kiểm thử tương thích.
-- Supabase/PostgreSQL: không còn là nền tảng mục tiêu trong kiến trúc vận hành mới; dữ liệu/dự án cũ phải được giữ nguyên trong giai đoạn chuyển đổi, chỉ ngừng phụ thuộc sau khi đã đối chiếu, di chuyển, kiểm thử và nghiệm thu.
+- Cloudflare Workers + D1 là backend chính thức duy nhất của HTS; không duy trì Supabase hoặc hai hệ thống database song song. Mã nguồn không kết nối Supabase. Không xóa hay thay đổi dự án/dữ liệu Supabase bên ngoài khi chưa xác minh và phê duyệt; trạng thái dữ liệu bên ngoài chưa được xác nhận.
 
 **Điểm phải xác minh trước khi thay đổi:** Hai tài liệu ghi hai phiên bản Next.js khác nhau (15.2.4 và 15.5.29). README này ghi nhận 15.5.29 là định hướng cập nhật mới hơn trong hồ sơ ngày 25/11/2026, nhưng phiên bản đang chạy phải lấy trực tiếp từ `package.json`, lockfile và môi trường triển khai. Không tự nâng cấp chỉ vì README ghi phiên bản mục tiêu.
 
-**Quy tắc database:** Cloudflare D1 không cung cấp sẵn cơ chế đăng nhập và Row Level Security giống Supabase. HTS phải thực hiện xác thực, phân quyền và kiểm tra phạm vi ở phía máy chủ; nếu có cơ chế database hỗ trợ thì bổ sung chính sách tương ứng. Không được tự chọn hoặc thay đổi database, không chạy migration phá hủy, không xóa bảng hoặc dữ liệu cũ trước khi: (1) kiểm kê repository và cấu hình; (2) xác định database production/test; (3) đối chiếu bảng, cột, quan hệ, index, trigger, migration và dữ liệu; (4) sao lưu và thử khôi phục; (5) có phương án chuyển đổi được phê duyệt.
+**Quy tắc database:** D1 là database ứng dụng duy nhất; chỉ truy cập qua Worker/server, không kết nối trình duyệt trực tiếp. D1 không thay thế xác thực hay authorization: các chức năng này phải được thực hiện phía máy chủ. Chưa xác nhận D1 production hoặc schema hiện hữu; không chạy migration lên production trước khi có thiết kế được duyệt, inventory, backup/restore và kế hoạch rollback.
 
 Next.js là framework, không phải dịch vụ lưu trữ. Không tự thay đổi phiên bản Next.js, Workers, D1 hoặc adapter khi chưa kiểm tra tương thích và chạy thử.
 
@@ -863,7 +863,7 @@ kiểm thử và nghiệm thu.
   OCR căn cước/danh sách              Chỉ là yêu cầu hỗ trợ có điều kiện;
                                       cần phê duyệt và kiểm soát dữ liệu
 
-  Database thực tế (Supabase hay D1)  Chưa xác minh; không tự ý thay đổi
+  Môi trường và schema D1 thực tế  Chưa xác minh; không tự ý thay đổi
 
   RLS/server authorization và         Cần rà soát và kiểm thử
   backup/restore                      
@@ -994,17 +994,20 @@ Dành cho lớp 1 đến lớp 5; gồm Tiếng Việt, Toán, Ngoại ngữ, Đ
 3. **Quản trị cấp cao (`super_admin`):** quản lý con người, quyền quản trị và cấu hình toàn nền tảng; có quyền cấp, gia hạn, điều chỉnh, tạm khóa và thu hồi quyền quản trị.
 
 ### 29.3. Chu kỳ quyền Field Admin
-- Quyền quản trị theo hồ sơ sửa đổi được cấp theo chu kỳ 05 ngày, tính từ lần đăng nhập đầu tiên sau khi phê duyệt.
+- Quyền quản trị Field Admin có thời hạn theo gói 10, 30, 90 hoặc 365 ngày; thời hạn cụ thể gắn với tài khoản, vai trò, lĩnh vực/phạm vi và quyết định cấp quyền.
+- Gói đã thanh toán không tự cấp quyền. Chỉ Super Admin được phê duyệt và kích hoạt grant; thời điểm bắt đầu tính hạn theo đề xuất tại mục 43.4 và phải được phê duyệt/cấu hình trước khi triển khai.
 - Mỗi lĩnh vực có trạng thái và thời hạn riêng.
 - Hết hạn thì quyền quản trị mất hiệu lực; tài khoản học tập không bị khóa.
-- Người dùng gửi yêu cầu gia hạn; chỉ Super Admin được chấp nhận hoặc từ chối.
+- Người dùng gửi yêu cầu gia hạn; chỉ Super Admin được chấp nhận hoặc từ chối. Quy tắc cộng nối khi gia hạn và cách xử lý sau hết hạn phải theo cấu hình được công bố.
 - Việc gia hạn không bắt buộc đổi tên đăng nhập/mật khẩu.
 - Khi hết hạn, bị tạm khóa hoặc thu hồi, máy chủ phải từ chối thao tác quản trị mới; lịch sử quyết định vẫn được lưu.
 - Email phê duyệt/gia hạn phải dùng liên kết xác thực an toàn, dùng một lần, có thời hạn và yêu cầu Super Admin xác thực; không gửi mật khẩu nguyên văn qua email.
 - Địa chỉ email nhận yêu cầu và thông tin liên hệ hiển thị phải được cấu hình trong hệ thống, không hard-code vào nhiều nơi.
 
 ### 29.4. Super Admin duy nhất và an toàn vận hành
-Hồ sơ nghiệp vụ đã thống nhất mô hình một tài khoản Super Admin duy nhất, không có thời hạn và không ai được tự nâng cấp thành Super Admin. Đây là yêu cầu cần được triển khai cùng MFA, quy trình khôi phục tài khoản, kiểm soát khẩn cấp và nhật ký đặc quyền; không tạo hoặc thay đổi tài khoản đặc quyền chỉ bằng chỉnh sửa mã nguồn. Cần có phương án vận hành an toàn để tránh mất quyền quản trị toàn hệ thống nếu tài khoản duy nhất gặp sự cố.
+Hồ sơ nghiệp vụ đã thống nhất mô hình một tài khoản Super Admin duy nhất, không có thời hạn và không ai được tự nâng cấp thành Super Admin. Tài khoản Super Admin tối cao duy nhất của chủ dự án Trần Văn Dĩnh (`tranvandinh1281984@gmail.com`) được miễn phí quản trị vĩnh viễn; đây là ngoại lệ duy nhất không phải thanh toán Pi và không bị hết hạn quyền quản trị. Tất cả tài khoản quản trị khác, gồm Field Admin và mọi tài khoản được cấp quyền quản trị bổ sung, phải dùng gói có thời hạn và thanh toán Pi Network. Ngoại lệ phải gắn với đúng tài khoản Super Admin đã xác minh/khởi tạo, không suy ra từ role do client tự khai.
+
+Đây là yêu cầu cần được triển khai cùng MFA, quy trình khôi phục tài khoản, kiểm soát khẩn cấp và nhật ký đặc quyền; không tạo hoặc thay đổi tài khoản đặc quyền chỉ bằng chỉnh sửa mã nguồn. Cần có phương án vận hành an toàn để tránh mất quyền quản trị toàn hệ thống nếu tài khoản duy nhất gặp sự cố.
 
 ## 30. Quản trị và tổ chức lĩnh vực Lực lượng vũ trang
 
@@ -1238,10 +1241,11 @@ Mức phí dự kiến trong hồ sơ ban đầu:
 - Học sinh các cấp: miễn phí.
 - Lực lượng vũ trang: miễn phí.
 - Đăng ký bán hàng: phí nền tảng dự kiến 0,001% tổng giá trị tiền hàng.
-- Liên hệ Tổ đề tài tạo đề thi theo chủ đề riêng: 0,000314 Pi.
 - Liên hệ cung cấp tài khoản học tập: miễn phí.
 
-Các mức phí, tỷ lệ doanh thu và cơ chế từ thiện là nội dung định hướng trong hồ sơ; phải được rà soát pháp lý, công bố minh bạch và phê duyệt trước khi áp dụng thực tế.
+Mọi hoạt động học tập, bao gồm bài giảng, học liệu được phép, bài tập, kiểm tra, nộp bài, trợ lý AI giảng dạy, lớp/nhóm và theo dõi tiến độ, đều miễn phí; không áp dụng khoản phí tạo đề/kiểm tra để người học tiếp cận hoạt động học tập. Phí đăng ký bán hàng là phí dịch vụ thương mại, không phải điều kiện học tập. Gói quyền quản trị có phí và chỉ thanh toán Pi Network được quy định riêng tại mục 43.
+
+Các mức phí thương mại, tỷ lệ doanh thu và cơ chế từ thiện còn lại là nội dung định hướng; phải được rà soát pháp lý, công bố minh bạch và phê duyệt trước khi áp dụng thực tế.
 
 ## 35. Nhóm bảng dữ liệu kỹ thuật bổ sung cần đối chiếu
 
@@ -1318,10 +1322,11 @@ Hai bảng “DANH SÁCH NHẬN QUÀ CÔNG ĐOÀN” và “DANH SÁCH NHẬN QU
 ## 39. Các điểm cần xác nhận trước khi triển khai
 
 - Phiên bản Next.js thực tế trong `package.json`/lockfile: 15.2.4 hay 15.5.29.
-- Cloudflare D1 đã là database production hay mới là kiến trúc mục tiêu; dữ liệu Supabase cũ đã chuyển đổi đến đâu.
+- Môi trường D1 nào là production/test và schema/migrations nào đã tồn tại; trạng thái mọi tài nguyên Supabase bên ngoài vẫn chưa xác minh và không bị thay đổi.
 - Danh sách bảng D1 thực tế, khóa ngoại, dữ liệu và migration hiện có.
 - Cơ chế xác thực, phiên đăng nhập, MFA, kiểm tra quyền server-side và quy trình khôi phục Super Admin.
-- Chu kỳ quyền Field Admin 05 ngày có tiếp tục áp dụng hay được điều chỉnh.
+- Chính sách xử lý đơn quản trị đã thanh toán nhưng bị Super Admin từ chối, giao dịch sai/thiếu/thừa và hoàn tiền (nếu được hỗ trợ).
+- Cấu hình hết hạn (hết hiệu lực ngay hay trạng thái chờ gia hạn), quy tắc cộng nối khi gia hạn và cách xử lý thanh toán đã xác minh nhưng đang chờ xét duyệt.
 - Cơ quan/đơn vị có thẩm quyền cho phép lưu trữ và xử lý dữ liệu Lực lượng vũ trang, dân cư, sinh trắc học.
 - Nguồn xác minh chức vụ, quân hàm, đơn vị; mẫu xác nhận của chỉ huy và phạm vi tệp được phép lưu.
 - Người nhận, kênh gửi và loại nội dung được phép gửi qua HTS.
@@ -1371,16 +1376,16 @@ Thiết kế giao diện cần gọn, trang trọng, dễ đọc trên điện t
 - Thông tin giới thiệu trên trang chủ không tự nó cấp quyền. Quyền chỉ có hiệu lực sau khi được phê duyệt và ghi nhận ở máy chủ.
 - Không cho phép người dùng tự chọn vai trò đặc quyền hoặc tự sửa trạng thái phê duyệt từ trình duyệt.
 
-## 43. Thời hạn sử dụng quyền và bảng phí bằng Pi Network
+## 43. Quyền quản trị có phí, thời hạn và thanh toán Pi Network
 
 ### 43.1. Các gói thời hạn
-Cơ chế thời hạn sử dụng có các lựa chọn:
+Các gói dưới đây áp dụng cho mọi tài khoản được cấp quyền quản trị, gồm Field Admin và các quyền quản trị bổ sung, không phải học phí và không thay thế quyết định cấp quyền. Ngoại lệ duy nhất là tài khoản Super Admin tối cao của chủ dự án được miễn phí vĩnh viễn như mục 29.4. Các lựa chọn thời hạn:
 - 10 ngày.
 - 30 ngày.
 - 90 ngày.
 - 01 năm.
 
-Các gói có mức chi phí tăng dần theo thời hạn sử dụng. Bảng giá phải được cấu hình tập trung, hiển thị trước khi người dùng xác nhận đăng ký và được Super Admin quản lý. Không tự ý thay đổi giá đã áp dụng cho một giao dịch đã xác nhận.
+Giá gói được cấu hình tập trung, hiển thị trước khi người dùng xác nhận đăng ký và được Super Admin quản lý. Không tự ý thay đổi giá đã áp dụng cho giao dịch đã tạo.
 
 ### 43.2. Bảng giá các gói theo tỷ lệ thời hạn
 
@@ -1399,16 +1404,17 @@ Các mức phí trên được tính theo cùng một đơn giá, không cộng 
 - Chỉ nhận thanh toán bằng Pi Network (π) đối với các gói thời hạn nêu tại mục này.
 - Không cung cấp lựa chọn COD hoặc chuyển khoản ngân hàng cho giao dịch mua/gia hạn quyền này.
 - Trước khi thanh toán, người dùng phải nhìn thấy rõ gói thời hạn, số Pi phải trả, phạm vi quyền/dịch vụ được đăng ký và điều kiện áp dụng.
-- Chỉ kích hoạt hoặc gia hạn quyền sau khi máy chủ xác minh giao dịch Pi thành công, đúng số tiền, đúng địa chỉ nhận và đúng mã yêu cầu/đơn đăng ký.
+- Máy chủ xác minh giao dịch Pi thành công, đúng số tiền, địa chỉ nhận, mạng và đơn thanh toán. Xác minh thanh toán chỉ chuyển đơn sang trạng thái đã thanh toán/chờ xét duyệt; không tự kích hoạt hoặc gia hạn quyền.
+- Chỉ Super Admin được phê duyệt và cấp/gia hạn quyền. Quyền chỉ có hiệu lực khi grant được kích hoạt với tài khoản, role, lĩnh vực/phạm vi và thời hạn cụ thể.
 - Không xác nhận thanh toán chỉ dựa vào ảnh chụp màn hình hoặc thông tin do trình duyệt gửi lên.
 - Không yêu cầu, thu thập hoặc lưu Pi Wallet Passphrase.
 - Lưu mã giao dịch, gói đã mua, số Pi, thời điểm, trạng thái xác minh và liên kết với tài khoản; không lưu dữ liệu bí mật của ví.
 
 ### 43.4. Chu kỳ quyền và thời điểm bắt đầu
 - Mỗi gói thời hạn phải gắn với một quyền/dịch vụ cụ thể, tài khoản, lĩnh vực/phạm vi và thời điểm bắt đầu/kết thúc.
-- Cần xác định rõ thời điểm bắt đầu tính hạn: thời điểm giao dịch được xác minh hay thời điểm Super Admin kích hoạt quyền. Không tự áp dụng cách tính khác nhau giữa các lĩnh vực.
-- Khi gia hạn trước khi hết hạn, hệ thống cần áp dụng quy tắc cộng nối thời gian đã được Super Admin công bố; không làm mất thời gian còn lại nếu chưa có quy định khác.
-- Khi hết hạn, quyền trả phí tương ứng tự mất hiệu lực ở máy chủ; tài khoản người dùng và các quyền học tập miễn phí hợp lệ không bị xóa hoặc khóa theo.
+- Đề xuất mặc định: thời hạn bắt đầu tại thời điểm Super Admin kích hoạt grant sau khi duyệt; thời gian chờ xét duyệt không làm giảm thời hạn đã mua. Chính sách này phải được cấu hình thống nhất và phê duyệt trước khi triển khai.
+- Đề xuất mặc định: gia hạn được duyệt trước khi hết hạn thì cộng nối từ ngày hết hạn hiện tại; gia hạn sau khi hết hạn thì tính từ thời điểm kích hoạt grant mới. Mọi điều chỉnh phải theo chính sách được công bố và lưu lịch sử.
+- Khi hết hạn, quyền quản trị mất hiệu lực ở máy chủ hoặc chuyển trạng thái chờ gia hạn theo cấu hình. Tài khoản, dữ liệu và quyền học tập miễn phí không bị xóa hoặc khóa theo.
 - Hệ thống thông báo trước khi quyền hết hạn và cho phép gửi yêu cầu gia hạn.
 - Các quyết định cấp, gia hạn, tạm khóa, thu hồi và hết hạn phải được ghi nhật ký.
 
@@ -1425,20 +1431,24 @@ Yêu cầu triển khai an toàn:
 - Không tự động lấy giá thị trường từ một nguồn không được phê duyệt để thay đổi giá gói.
 
 ### 43.6. Quản lý giao dịch và đối soát
-Các trạng thái giao dịch đề xuất:
-`created` → `pending_payment` → `verifying` → `paid` → `entitlement_activated`; các trạng thái ngoại lệ gồm `expired`, `failed`, `cancelled`, `rejected` và `refunded` nếu chính sách hoàn tiền được phê duyệt.
+Trạng thái thanh toán và trạng thái phê duyệt/cấp quyền là hai luồng riêng. Thanh toán có thể đi qua `created` → `pending_payment` → `verifying` → `paid`; trạng thái ngoại lệ gồm `expired`, `failed`, `cancelled` và `refunded` nếu chính sách hoàn tiền được phê duyệt. Sau khi thanh toán, yêu cầu quản trị ở trạng thái chờ Super Admin xét duyệt; grant chỉ chuyển thành `active` sau quyết định cấp quyền. Không dùng trạng thái thanh toán `paid` như bằng chứng quyền đã được cấp.
 
-Mỗi giao dịch cần lưu tối thiểu:
+Mỗi đơn, giao dịch và lần xác minh cần liên kết và lưu tối thiểu:
 - Mã giao dịch nội bộ và mã yêu cầu đăng ký.
 - Tài khoản người mua.
 - Gói thời hạn và quyền/dịch vụ tương ứng.
 - Giá Pi áp dụng tại thời điểm tạo giao dịch.
 - Mã giao dịch trên mạng Pi và thông tin xác minh cần thiết.
 - Địa chỉ nhận đã cấu hình.
-- Trạng thái, thời điểm thanh toán và thời điểm kích hoạt.
-- Lịch sử xử lý và người/cơ chế xác minh.
+- Trạng thái và thời điểm thanh toán, xác minh, quyết định Super Admin, kích hoạt, hết hạn, thu hồi hoặc gia hạn.
+- Lịch sử xử lý, người/cơ chế xác minh, người phê duyệt và lý do quyết định.
 
-Các trạng thái trên là gợi ý thiết kế, phải được đối chiếu với API thanh toán Pi thực tế và quy trình nghiệp vụ được duyệt trước khi lập trình.
+Các trạng thái trên là gợi ý thiết kế, phải được đối chiếu với tích hợp Pi Network được phê duyệt và quy trình nghiệp vụ trước khi lập trình. Không ghi passphrase, private key hoặc bí mật ví vào database, log hay audit. Thiết kế chi tiết: `docs/HTS_ADMIN_SUBSCRIPTION_AND_PI_PAYMENT_DESIGN.md`.
+
+### 43.7. Học tập miễn phí, độc lập với quyền quản trị
+Toàn bộ hoạt động học tập trong bảy lĩnh vực HTS miễn phí; người học không phải mua gói quản trị để học. Phạm vi miễn phí gồm truy cập bài giảng/chương trình học, sử dụng học liệu được phép cung cấp, làm và nộp bài tập/kiểm tra, dùng trợ lý AI giảng dạy theo chính sách nền tảng, tham gia lớp/nhóm học tập và theo dõi kết quả/tiến độ. Việc sử dụng AI có thể chịu quota kỹ thuật/ngân sách để bảo vệ hệ thống nhưng quota đó không phải học phí hoặc điều kiện mua quyền quản trị.
+
+Quyền vào một lĩnh vực/khu vực đặc biệt vẫn có thể yêu cầu xác minh, membership và phê duyệt theo chính sách truy cập (ví dụ Lực lượng vũ trang); đây là điều kiện tư cách/phạm vi, không phải khoản phí. Hết hạn, tạm khóa hoặc thu hồi quyền quản trị không làm mất tài khoản, dữ liệu học tập hoặc quyền học tập miễn phí hợp lệ.
 
 ## 44. Thông báo hướng dẫn chức năng theo ngữ cảnh
 
@@ -1499,6 +1509,7 @@ Tên bảng dưới đây chỉ là đề xuất, không xác nhận đã tồn 
 - `entitlement_plan_prices`: giá Pi và lịch sử hiệu lực của từng gói.
 - `entitlement_subscriptions`: quyền/dịch vụ đã đăng ký theo tài khoản.
 - `pi_payment_orders`: yêu cầu thanh toán Pi.
+- `pi_payment_transactions`: tham chiếu giao dịch trên Pi Network và trạng thái đối soát; cần đối chiếu bảng cùng mục đích trong hồ sơ rà soát D1.
 - `pi_payment_verifications`: kết quả xác minh giao dịch.
 - `entitlement_audit_logs`: nhật ký cấp, gia hạn, hết hạn, tạm khóa và thu hồi quyền.
 - `feature_guides`: nội dung hướng dẫn theo chức năng/lĩnh vực.
@@ -1508,12 +1519,11 @@ Không tạo các bảng này trước khi kiểm tra schema D1 hiện tại, t�
 
 ## 46. Các điểm cần chủ dự án xác nhận tiếp
 
-1. Các gói thời hạn áp dụng cho quyền Field Admin, quyền sử dụng chức năng trả phí hay một loại dịch vụ cụ thể; không tự mặc định là cùng một loại quyền.
-2. Thời điểm bắt đầu tính thời hạn: lúc thanh toán được xác minh hay lúc quyền được kích hoạt.
-3. Quy tắc cộng nối thời gian khi gia hạn trước ngày hết hạn.
-4. Chính sách xử lý giao dịch lỗi, thanh toán thừa/thiếu và hoàn tiền (nếu có).
-5. URL Zalo và Facebook chính xác nếu muốn gắn liên kết trực tiếp trên trang chủ.
-6. Chính sách “giá trị Pi cố định” trong tương lai: giá Pi tham chiếu là tham số quy đổi hay giá niêm yết cố định cho từng gói.
+1. Xử lý đơn đã thanh toán nhưng bị từ chối, giao dịch lỗi/thừa/thiếu và hoàn tiền (nếu có).
+2. Phê duyệt đề xuất thời điểm bắt đầu tính hạn khi Super Admin kích hoạt grant, cấu hình hết hạn/chờ gia hạn và quy tắc cộng nối.
+3. Chốt tích hợp Pi Network được phép, quy trình xác minh giao dịch và đối soát trước khi phát triển.
+4. URL Zalo và Facebook chính xác nếu muốn gắn liên kết trực tiếp trên trang chủ.
+5. Chính sách “giá trị Pi cố định” trong tương lai: giá Pi tham chiếu là tham số quy đổi hay giá niêm yết cố định cho từng gói.
 
 ---
 
@@ -1548,7 +1558,7 @@ Danh sách này là tài liệu tham khảo, không có nghĩa HTS phải sử d
 - Framework ứng dụng: Next.js.
 - Quản lý mã nguồn: GitHub.
 - Hạ tầng và triển khai: Cloudflare Workers/Pages/D1; Vercel; Netlify.
-- Cơ sở dữ liệu cũ từng được nghiên cứu: Supabase/PostgreSQL; kiến trúc mục tiêu cập nhật trong hồ sơ ngày 25/11/2026 là Cloudflare D1, cần giữ dữ liệu cũ trong giai đoạn chuyển đổi.
+- Supabase/PostgreSQL chỉ là nền tảng được nghiên cứu trong tài liệu lịch sử; không thuộc kiến trúc vận hành HTS. Tài nguyên bên ngoài không bị xóa hoặc sửa bởi thay đổi mã nguồn.
 - Công cụ AI hỗ trợ phân tích yêu cầu, thiết kế kiến trúc, viết và rà soát mã nguồn: ChatGPT.
 - Việc lựa chọn dịch vụ phải dựa trên kiến trúc đã được xác nhận, khả năng tương thích, bảo mật, chi phí và điều kiện xử lý dữ liệu.
 

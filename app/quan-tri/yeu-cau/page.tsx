@@ -158,7 +158,7 @@ export default function AdminRequestsPage() {
             <ul className="ml-5 mt-2 list-disc">
               <li>Chỉ Quản trị cấp cao được phép xét duyệt yêu cầu.</li>
               <li>Quản trị viên cấp thấp không được tự cấp quyền cho mình hoặc người khác.</li>
-              <li>Quyền quản trị chỉ có hiệu lực sau khi được xác thực và lưu thành công vào Supabase.</li>
+              <li>Quyền quản trị chỉ có hiệu lực sau khi máy chủ xác thực, phê duyệt và ghi nhận grant trong D1.</li>
               <li>Phải ghi nhật ký người duyệt, thời gian và kết quả xét duyệt.</li>
             </ul>
             <p className="mt-3 font-semibold">

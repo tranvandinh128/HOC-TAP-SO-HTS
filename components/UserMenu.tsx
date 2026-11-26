@@ -96,8 +96,8 @@ export default function UserMenu({
           </div>
 
           <p className="mt-3 border-t border-slate-200 pt-3 text-xs leading-5 text-slate-500">
-            Đăng xuất và xác thực tài khoản sẽ được kết nối
-            với Supabase ở bước hoàn thiện hệ thống.
+            Đăng xuất và xác thực tài khoản sẽ được triển khai
+            cùng hệ thống Cloudflare ở giai đoạn sau.
           </p>
         </div>
       )}

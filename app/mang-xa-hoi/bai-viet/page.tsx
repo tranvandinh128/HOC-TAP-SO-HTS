@@ -257,7 +257,7 @@ export default function CommunityPostsPage() {
           <p className="mt-2 text-sm leading-6 text-amber-900">
             Đây là giao diện thử nghiệm. Bài viết, lượt thích và bình luận
             hiện chỉ lưu trong trạng thái tạm thời của trang, chưa được
-            lưu vào Supabase. Khi triển khai chính thức cần đăng nhập,
+            lưu trên máy chủ. Khi triển khai chính thức cần đăng nhập,
             kiểm tra quyền, lưu dữ liệu, kiểm duyệt nội dung và ghi nhật ký
             hoạt động. Người dùng chỉ được sửa hoặc xóa bài viết của mình
             theo chính sách hệ thống.

@@ -1,6 +1,8 @@
 
 # HTS – Gói bổ sung đợt 1
 
+**Ghi chú trạng thái:** Đây là hướng dẫn lịch sử tại thời điểm gói được tạo; phần nhắc Supabase/schema cũ không phải chỉ dẫn triển khai hiện hành. Quyết định 26/11/2026 chọn Cloudflare Workers + D1 làm backend duy nhất. Xem [kiến trúc chuẩn](./HTS_CLOUDFLARE_D1_CANONICAL_ARCHITECTURE.md); các bước upload/branch bên dưới không phải quy trình triển khai hiện tại.
+
 ## Mục tiêu
 Gói này bổ sung các phần còn thiếu có thể thêm an toàn vào mã nguồn hiện tại:
 - Tạo trang `/tai-khoan` để không còn liên kết 404 từ menu tài khoản.
@@ -31,7 +33,7 @@ Gói này bổ sung các phần còn thiếu có thể thêm an toàn vào mã n
 `Add the missing account route referenced by the user menu, introduce shared TypeScript models for profiles, field-admin requests, audit logs and exam score imports, and document the next database/security implementation phase. No live authentication or database behavior is claimed.`
 
 ## Lưu ý quan trọng
-- Gói này không thay thế hoặc sửa `supabase/schema.sql`.
+- Gói này không thay thế hoặc sửa schema PostgreSQL cũ (schema đó đã được xóa khỏi mã nguồn trong Giai đoạn 1).
 - Chưa chạy SQL nào trên Supabase.
 - Chưa kết nối đăng nhập, đăng ký, quên mật khẩu, duyệt quản trị hoặc nhật ký thật.
 - Chưa đưa dữ liệu cá nhân, dữ liệu quân đội, dữ liệu quà tặng/đồng phục hoặc dữ liệu sinh trắc học thật lên hệ thống.

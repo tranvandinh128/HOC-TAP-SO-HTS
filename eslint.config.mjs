@@ -1,5 +1,4 @@
-
-import { dirname } from "node:path";
+﻿import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { FlatCompat } from "@eslint/eslintrc";
 
@@ -14,18 +13,18 @@ const eslintConfig = [
   {
     ignores: [
       ".next/**",
+      ".open-next/**",
+      ".wrangler/**",
       "node_modules/**",
       "out/**",
       "build/**",
       "dist/**",
       "coverage/**",
       "next-env.d.ts",
+      "cloudflare-env.d.ts",
     ],
   },
-  ...compat.extends(
-    "next/core-web-vitals",
-    "next/typescript"
-  ),
+  ...compat.extends("next/core-web-vitals", "next/typescript"),
 ];
 
 export default eslintConfig;

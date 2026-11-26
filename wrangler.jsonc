@@ -1,0 +1,18 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "hoc-tap-so-hts",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-10-13",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "hts-hoc-tap-so",
+      "database_id": "40918aec-b066-49c8-b57f-836b320d3242"
+    }
+  ]
+}

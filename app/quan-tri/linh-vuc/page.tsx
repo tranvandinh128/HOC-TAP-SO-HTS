@@ -253,10 +253,10 @@ export default function LearningFieldsPage() {
 
           <p className="mt-2 text-sm leading-6 text-amber-900">
             Dữ liệu trong trang hiện là dữ liệu mẫu để xây dựng giao diện.
-            Các thao tác thay đổi trạng thái chưa được lưu vào Supabase.
+            Các thao tác thay đổi trạng thái chưa được lưu vào máy chủ.
             Khi triển khai thực tế, chỉ super_admin mới được thay đổi
             cấu hình lĩnh vực. Quyền truy cập phải được kiểm tra tại
-            máy chủ và bằng chính sách RLS của Supabase.
+            máy chủ cho mỗi request; D1 không được truy cập trực tiếp từ trình duyệt.
           </p>
         </section>
 

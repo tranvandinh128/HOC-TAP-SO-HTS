@@ -156,7 +156,7 @@ function ResultContent() {
 
           <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
             <strong>Lưu ý:</strong> Đây là kết quả tạm tính.
-            Khi kết nối Supabase, hệ thống sẽ lưu kết quả trên
+            Khi kết nối API Cloudflare, hệ thống sẽ lưu kết quả trên
             máy chủ, xác thực điểm thi và ghi nhận lịch sử chỉnh sửa.
             Không sử dụng kết quả trên trình duyệt làm điểm chính thức.
           </div>

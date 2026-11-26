@@ -83,7 +83,7 @@ export default function ContentManagementPage() {
 
     setSelected(null);
     setNotice(
-      `Đã cập nhật trạng thái thử nghiệm thành "${status}". Dữ liệu hiện chưa lưu lên Supabase.`
+      `Đã cập nhật trạng thái thử nghiệm thành "${status}". Dữ liệu hiện chưa được lưu vào máy chủ.`
     );
   }
 

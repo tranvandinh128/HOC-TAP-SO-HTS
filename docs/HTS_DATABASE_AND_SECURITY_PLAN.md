@@ -1,6 +1,8 @@
 
 # HTS – KẾ HOẠCH CƠ SỞ DỮ LIỆU VÀ BẢO MẬT
 
+**Kiến trúc chuẩn:** [HTS_CLOUDFLARE_D1_CANONICAL_ARCHITECTURE.md](./HTS_CLOUDFLARE_D1_CANONICAL_ARCHITECTURE.md). D1 được truy cập qua Worker/server; tài liệu này chưa phải migration hoặc bằng chứng triển khai.
+
 ## 1. Mục đích
 Tài liệu xác định các nguyên tắc cần tuân thủ khi xây dựng cơ sở dữ liệu, xác thực tài khoản, phân quyền quản trị, lưu nhật ký và bảo vệ dữ liệu của nền tảng HỌC TẬP SỐ (HTS).
 
@@ -75,30 +77,28 @@ Tên bảng dưới đây là định hướng thiết kế, chưa phải danh s
 - `audit_logs`: nhật ký hoạt động.
 - Các bảng đăng ký quà tặng, đồng phục và dữ liệu nghiệp vụ khác sẽ được thiết kế riêng theo phạm vi sử dụng và mức độ bảo mật.
 
-Trước khi tạo hoặc sửa bảng phải kiểm tra schema hiện tại, dữ liệu hiện có, khóa ngoại, chỉ mục và chính sách RLS.
+Trước khi tạo hoặc sửa bảng phải kiểm tra schema D1 hiện tại, dữ liệu, khóa ngoại, chỉ mục và các kiểm tra quyền ở tầng server.
 
 ## 6. Xác thực tài khoản
-Định hướng sử dụng Supabase Auth:
-- Đăng ký bằng email và mật khẩu.
-- Xác minh email theo cấu hình hệ thống.
-- Đăng nhập và đăng xuất.
-- Khôi phục mật khẩu.
-- Liên kết hồ sơ người dùng với mã định danh Auth.
-- Không lưu mật khẩu dạng văn bản trong bảng hồ sơ.
-- Không đưa khóa bí mật dịch vụ Supabase vào mã nguồn phía trình duyệt.
+HTS sẽ tự xây dựng xác thực phía máy chủ trên Cloudflare Workers, dùng D1 làm nguồn dữ liệu duy nhất. Chức năng này chưa được triển khai.
+- Đăng ký bằng email và mật khẩu; xác minh email qua dịch vụ gửi thư được phê duyệt.
+- Đăng nhập/đăng xuất, quản lý session, khôi phục tài khoản và thu hồi phiên đều do Worker xử lý.
+- Liên kết hồ sơ với account ID nội bộ; browser không quyết định account, role hoặc scope.
+- Không lưu mật khẩu dạng văn bản; dùng password hashing thích hợp và lưu credential phía server.
+- Cookie phiên dùng `HttpOnly`, `Secure`, `SameSite` phù hợp; không lưu token xác thực trong `localStorage`.
+- Không đưa secret hoặc credential dịch vụ vào bundle phía client.
 
 Số điện thoại chỉ được sử dụng sau khi xác định quy trình xác minh phù hợp.
 
 ## 7. Nguyên tắc bảo mật cơ sở dữ liệu
-- Bật Row Level Security (RLS) cho các bảng chứa dữ liệu người dùng hoặc dữ liệu quản trị.
-- Người dùng chỉ được đọc hoặc sửa dữ liệu thuộc quyền của mình.
-- field_admin chỉ thao tác trong lĩnh vực được giao.
-- Chỉ super_admin được phê duyệt và thay đổi quyền quản trị.
-- Không dựa riêng vào việc ẩn nút hoặc chặn trang ở giao diện.
-- Kiểm tra quyền tại máy chủ và cơ sở dữ liệu.
-- Không tin tưởng role, user_id hoặc field_id do trình duyệt tự gửi lên nếu chưa xác minh.
-- Không sử dụng service role key ở phía client.
-- Kiểm tra chính sách RLS bằng các tài khoản thuộc từng vai trò trước khi vận hành.
+- D1 chỉ được truy cập qua Worker/server binding; không kết nối D1 trực tiếp từ trình duyệt.
+- Mọi request phải xác thực session và kiểm tra permission, role grant, scope, membership và trạng thái account ở máy chủ; mặc định từ chối.
+- Người dùng chỉ được đọc/sửa dữ liệu thuộc quyền của mình; Field Admin chỉ thao tác trong scope được cấp.
+- Chỉ Super Admin được phê duyệt và thay đổi quyền quản trị; không cấp quyền từ payload trình duyệt hoặc thanh toán tự động.
+- Không dựa riêng vào việc ẩn nút/chặn trang ở giao diện.
+- Không tin role, account ID hoặc field ID do trình duyệt tự gửi lên nếu chưa xác minh bằng session và dữ liệu D1.
+- Dùng prepared statements, validate input, giới hạn tốc độ và ghi audit cho thao tác nhạy cảm.
+- Kiểm thử truy cập chéo scope, session hết hạn/thu hồi và trường hợp thiếu quyền trước khi vận hành.
 
 ## 8. Nhật ký quản trị
 Cần ghi lại các hoạt động quan trọng:
@@ -167,11 +167,11 @@ Quy trình:
 - Có quy trình ứng phó khi mất dữ liệu hoặc phát hiện truy cập trái phép.
 
 ## 14. Trình tự triển khai đề xuất
-1. Kiểm tra cấu trúc Supabase hiện tại và dữ liệu đang có.
+1. Kiểm tra cấu hình và schema D1 trong môi trường được chủ dự án xác định; không truy cập hay thay đổi production khi chưa được phê duyệt.
 2. Thống nhất mô hình bảng và quan hệ dữ liệu.
 3. Thiết kế migration có thể kiểm tra và khôi phục.
-4. Thiết lập Supabase Auth.
-5. Thiết lập RLS và các hàm kiểm tra quyền.
+4. Xây dựng xác thực/session phía server trên Cloudflare Workers.
+5. Xây dựng kiểm tra permission/scope phía server; không dựa vào giao diện làm ranh giới bảo vệ.
 6. Hoàn thiện quy trình yêu cầu, duyệt và thu hồi quyền quản trị.
 7. Kết nối giao diện quản trị với dữ liệu thật.
 8. Kiểm thử bằng tài khoản thuộc từng vai trò.
@@ -181,8 +181,8 @@ Quy trình:
 ## 15. Những việc chưa được coi là hoàn thành
 Việc tạo tài liệu hoặc kiểu dữ liệu TypeScript không có nghĩa là:
 - Cơ sở dữ liệu đã được tạo đầy đủ.
-- Supabase Auth đã hoạt động.
-- RLS đã được cấu hình an toàn.
+- Xác thực Cloudflare đã hoạt động.
+- Kiểm tra quyền server-side đã được cấu hình an toàn.
 - Quy trình phê duyệt quản trị đã hoạt động.
 - Nhật ký đã được ghi vào cơ sở dữ liệu.
 - Nhận diện khuôn mặt hoặc giám sát thi đã được triển khai.

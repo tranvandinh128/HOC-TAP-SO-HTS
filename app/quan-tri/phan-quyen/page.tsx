@@ -247,7 +247,7 @@ export default function AdminPermissionPage() {
           <p className="mt-3 text-sm leading-6 text-amber-900">
             Việc phân quyền chính thức phải được thực hiện
             phía máy chủ, kiểm tra vai trò super_admin,
-            áp dụng Supabase Row Level Security (RLS),
+            kiểm tra permission và scope trên mỗi request,
             lưu thời hạn quyền và ghi nhật ký thao tác.
             Không được dựa riêng vào giao diện trình duyệt
             để cấp hoặc thu hồi quyền.

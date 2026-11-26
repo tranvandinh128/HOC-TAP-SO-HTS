@@ -3,82 +3,16 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { createClient } from "@supabase/supabase-js";
-
-type MessageType = "error" | "success";
 
 export default function LoginPage() {
-  const router = useRouter();
-
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [messageType, setMessageType] =
-    useState<MessageType>("error");
 
-  async function handleSubmit(
-    event: FormEvent<HTMLFormElement>
-  ) {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
-    setMessage("");
-    setLoading(true);
-
-    try {
-      const formData = new FormData(event.currentTarget);
-
-      const email = String(formData.get("email") || "")
-        .trim()
-        .toLowerCase();
-
-      const password = String(formData.get("password") || "");
-
-      const supabaseUrl =
-        process.env.NEXT_PUBLIC_SUPABASE_URL;
-
-      const supabaseAnonKey =
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-      if (!supabaseUrl || !supabaseAnonKey) {
-        throw new Error(
-          "Chưa cấu hình kết nối Supabase. Vui lòng kiểm tra biến môi trường."
-        );
-      }
-
-      const supabase = createClient(
-        supabaseUrl,
-        supabaseAnonKey
-      );
-
-      const { error } =
-        await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-
-      if (error) {
-        throw error;
-      }
-
-      setMessageType("success");
-      setMessage("Đăng nhập thành công. Đang chuyển trang...");
-
-      router.replace("/");
-      router.refresh();
-    } catch (error) {
-      setMessageType("error");
-
-      if (error instanceof Error) {
-        setMessage(error.message);
-      } else {
-        setMessage(
-          "Đã xảy ra lỗi trong quá trình đăng nhập."
-        );
-      }
-    } finally {
-      setLoading(false);
-    }
+    setMessage(
+      "Đăng nhập chưa khả dụng. Hệ thống xác thực Cloudflare chưa được triển khai; thông tin bạn nhập không được gửi hoặc lưu."
+    );
   }
 
   return (
@@ -118,7 +52,6 @@ export default function LoginPage() {
               required
               autoComplete="email"
               placeholder="Nhập email của bạn"
-              disabled={loading}
               className="w-full rounded-lg border border-gray-300 p-3 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100"
             />
           </div>
@@ -139,7 +72,6 @@ export default function LoginPage() {
                 required
                 autoComplete="current-password"
                 placeholder="Nhập mật khẩu"
-                disabled={loading}
                 className="min-w-0 flex-1 rounded-lg p-3 outline-none"
               />
 
@@ -148,7 +80,6 @@ export default function LoginPage() {
                 onClick={() =>
                   setShowPassword((current) => !current)
                 }
-                disabled={loading}
                 aria-label={
                   showPassword
                     ? "Ẩn mật khẩu"
@@ -174,11 +105,7 @@ export default function LoginPage() {
             <div
               role="status"
               aria-live="polite"
-              className={`rounded-lg p-3 text-sm ${
-                messageType === "success"
-                  ? "bg-green-50 text-green-800"
-                  : "bg-red-50 text-red-700"
-              }`}
+              className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900"
             >
               {message}
             </div>
@@ -186,10 +113,9 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            disabled={loading}
-            className="w-full rounded-lg bg-green-700 px-5 py-3 font-bold text-white transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-lg bg-green-700 px-5 py-3 font-bold text-white transition hover:bg-green-800"
           >
-            {loading ? "ĐANG ĐĂNG NHẬP..." : "ĐĂNG NHẬP"}
+            ĐĂNG NHẬP
           </button>
 
           <p className="text-center text-sm text-gray-600">

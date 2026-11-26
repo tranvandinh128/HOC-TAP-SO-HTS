@@ -25,7 +25,7 @@ export default function YeuCauQuanTriPage() {
     }
 
     setMessage(
-      "Thông tin đã được kiểm tra trên giao diện. Chức năng gửi và lưu yêu cầu sẽ được kết nối với Supabase ở bước tiếp theo."
+      "Thông tin chỉ được kiểm tra trên giao diện. Yêu cầu chưa được gửi hoặc lưu; API quản trị phía máy chủ Cloudflare chưa được triển khai."
     );
   }
 

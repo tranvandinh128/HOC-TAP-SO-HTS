@@ -56,7 +56,7 @@ export default async function TinTucDetailPage({ params }: PageProps) {
             <p className="leading-8 text-slate-600">
               Nội dung chi tiết của bài viết sẽ được hiển thị tại đây
               sau khi hệ thống quản lý tin tức được kết nối với cơ sở
-              dữ liệu Supabase.
+              dữ liệu D1 qua API phía máy chủ.
             </p>
 
             <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4">

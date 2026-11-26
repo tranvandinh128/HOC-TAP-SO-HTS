@@ -14,13 +14,13 @@ export default function TaiKhoanPage() {
         <p className="mt-4 leading-7 text-slate-600">
           Trang này sẽ hiển thị thông tin cá nhân, lĩnh vực học tập đã đăng ký,
           tiến độ học tập và trạng thái yêu cầu quyền quản trị sau khi hệ thống
-          xác thực được kết nối với Supabase.
+          xác thực Cloudflare được triển khai.
         </p>
 
         <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
           <strong>Trạng thái hiện tại:</strong> Chức năng tài khoản mới là khung
-          giao diện. Dự án trong gói mã nguồn hiện tại chưa có xác thực Supabase
-          hoạt động, vì vậy trang này không hiển thị hoặc lưu dữ liệu cá nhân.
+          giao diện. Dự án chưa có xác thực Cloudflare hoạt động, vì vậy trang
+          này không hiển thị hoặc lưu dữ liệu cá nhân.
           Không nhập thông tin nhạy cảm vào trang thử nghiệm.
         </div>
 

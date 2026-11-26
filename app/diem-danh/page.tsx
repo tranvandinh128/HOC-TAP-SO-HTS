@@ -264,7 +264,7 @@ export default function DiemDanhPage() {
         <p className="text-sm text-slate-500">
           Lưu ý: Đây là giao diện và dữ liệu minh họa. Chưa kết nối
           camera, nhận diện khuôn mặt, đồng hồ điểm danh tự động
-          hoặc cơ sở dữ liệu Supabase.
+          hoặc API lưu trữ phía máy chủ trên Cloudflare D1.
         </p>
       </section>
     </main>

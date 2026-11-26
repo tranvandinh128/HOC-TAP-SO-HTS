@@ -335,7 +335,7 @@ export default function ThuVienPage() {
 
         <p className="text-sm leading-6 text-slate-500">
           Lưu ý: Đây là giao diện thử nghiệm với dữ liệu minh họa.
-          Chưa kết nối kho tệp, Supabase Storage hoặc chức năng tải
+          Chưa kết nối kho tệp riêng tư Cloudflare R2 hoặc chức năng tải
           và xem tài liệu thực tế.
         </p>
       </section>

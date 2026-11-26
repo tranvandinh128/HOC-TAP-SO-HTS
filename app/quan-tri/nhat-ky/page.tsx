@@ -129,7 +129,7 @@ export default function AdminActivityLogPage() {
           <strong>Lưu ý kỹ thuật:</strong>
           <ul className="ml-5 mt-2 list-disc">
             <li>Dữ liệu hiện tại chỉ là dữ liệu minh họa.</li>
-            <li>Chưa kết nối bảng activity_logs trong Supabase.</li>
+            <li>Chưa kết nối API nhật ký hoặc lưu sự kiện vào D1.</li>
             <li>Nhật ký thật cần ghi nhận người thao tác, thời gian,
               hành động, đối tượng và kết quả.</li>
             <li>Không cho phép người dùng tự sửa hoặc xóa lịch sử.</li>

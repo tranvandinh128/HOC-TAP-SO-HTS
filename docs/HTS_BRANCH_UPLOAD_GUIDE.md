@@ -1,5 +1,7 @@
 # HƯỚNG DẪN ĐƯA GÓI LÊN NHÁNH FEATURE
 
+**Trạng thái:** Hướng dẫn lịch sử cho gói `feature/hts-education-management`; không phải quy trình triển khai Cloudflare hiện hành. Kiến trúc backend chuẩn được mô tả tại [HTS_CLOUDFLARE_D1_CANONICAL_ARCHITECTURE.md](./HTS_CLOUDFLARE_D1_CANONICAL_ARCHITECTURE.md). Các bước branch/commit dưới đây cần được chủ dự án rà soát trước khi sử dụng lại.
+
 1. Mở repository `tranvandinh128/HOC-TAP-SO-HTS`.
 2. Chọn nhánh `feature/hts-education-management` ở bộ chọn branch (không chọn `main`).
 3. Giải nén ZIP trên máy tính.

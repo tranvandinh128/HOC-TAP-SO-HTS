@@ -148,7 +148,7 @@ export default function TheoDoiHocTapPage() {
             Đây là giao diện mẫu. Các chỉ số hiện đang bằng 0,
             chưa phải kết quả học tập thực tế. Dữ liệu cá nhân,
             lịch sử học tập và điểm số sẽ được hiển thị sau khi
-            kết nối xác thực và cơ sở dữ liệu Supabase.
+            kết nối xác thực phía máy chủ và cơ sở dữ liệu D1.
           </p>
         </div>
       </section>

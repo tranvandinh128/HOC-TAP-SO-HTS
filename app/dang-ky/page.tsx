@@ -34,7 +34,7 @@ export default function RegisterPage() {
     }
 
     setMessage(
-      "Thông tin đã được kiểm tra trên biểu mẫu. Chức năng lưu tài khoản sẽ được kết nối với Supabase sau khi hoàn thiện hệ thống xác thực."
+      "Chức năng đăng ký chưa khả dụng. Biểu mẫu này chưa gửi hoặc lưu dữ liệu; xác thực Cloudflare sẽ được triển khai ở giai đoạn sau."
     );
   }
 

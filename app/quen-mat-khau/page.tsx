@@ -16,7 +16,7 @@ export default function ForgotPasswordPage() {
     }
 
     setMessage(
-      "Yêu cầu đã được ghi nhận trên biểu mẫu. Chức năng gửi email khôi phục sẽ được kết nối với Supabase."
+      "Chức năng khôi phục chưa khả dụng. Yêu cầu này chưa được gửi hoặc lưu; dịch vụ xác thực Cloudflare sẽ được triển khai ở giai đoạn sau."
     );
   }
 

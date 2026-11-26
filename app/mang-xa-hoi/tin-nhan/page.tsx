@@ -271,16 +271,16 @@ export default function MessagesPage() {
           <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-amber-900">
             <li>Đăng nhập tài khoản trước khi sử dụng nhắn tin.</li>
             <li>Chỉ người tham gia cuộc trò chuyện mới được xem nội dung.</li>
-            <li>Lưu tin nhắn trên Supabase và đồng bộ thời gian thực.</li>
+            <li>Lưu tin nhắn trong D1 qua API phía máy chủ và đồng bộ thời gian thực.</li>
             <li>Có chức năng gửi, nhận, thông báo và đánh dấu đã đọc.</li>
             <li>Cho phép chặn, báo cáo tin nhắn vi phạm.</li>
-            <li>Áp dụng phân quyền, RLS và nhật ký hoạt động.</li>
+            <li>Áp dụng phân quyền phía máy chủ và nhật ký hoạt động.</li>
             <li>Bảo vệ dữ liệu cá nhân và nội dung trao đổi.</li>
           </ul>
 
           <p className="mt-3 text-sm text-amber-900">
             Lưu ý: Đây hiện là giao diện thử nghiệm, tin nhắn chưa được
-            lưu vào Supabase và chưa truyền đến tài khoản khác.
+            lưu vào máy chủ và chưa truyền đến tài khoản khác.
           </p>
         </section>
       </div>

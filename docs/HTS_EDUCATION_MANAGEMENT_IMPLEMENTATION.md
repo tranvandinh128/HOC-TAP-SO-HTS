@@ -1,7 +1,9 @@
 # HỌC TẬP SỐ (HTS) – GÓI MÃ NGUỒN NỀN TẢNG QUẢN TRỊ GIÁO DỤC
 
-Phiên bản: 1.1  
-Nhánh đích: `feature/hts-education-management`  
+**Kiến trúc chuẩn:** [HTS_CLOUDFLARE_D1_CANONICAL_ARCHITECTURE.md](./HTS_CLOUDFLARE_D1_CANONICAL_ARCHITECTURE.md). Cloudflare Workers + D1 là backend duy nhất. Các nhận xét Supabase/D1 ở phần snapshot là lịch sử, không phải chỉ dẫn duy trì hai database.
+
+Phiên bản: 1.1
+Nhánh đích: `feature/hts-education-management`
 Nền tảng hiện có theo snapshot: Next.js 15.2.4, React 19, TypeScript 5.7.3.
 
 ## 1. Mục tiêu gói này
@@ -63,8 +65,8 @@ Không thay thế import hiện có từ `@/lib/permissions` cho đến khi có 
 ## 7. Việc chưa được gói này thực hiện
 
 - Chưa có API route/server action để đọc danh tính phiên đăng nhập.
-- Chưa có migration SQL, bảng, trigger, RLS hoặc kết nối Supabase/D1.
-- Chưa xác định DB sản xuất: snapshot hiện có `supabase/schema.sql`, trong khi lịch sử dự án có đề cập Cloudflare D1. Cần xác nhận hệ thống đang dùng trước khi thiết kế migration.
+- Chưa có migration SQL, bảng hoặc kết nối nghiệp vụ D1.
+- Chưa xác định môi trường D1 production/schema. Thiết kế migration cần dựa trên inventory D1 được phê duyệt; không lấy schema cũ làm schema mục tiêu.
 - Chưa có giao diện CRUD trường, cơ sở, lớp, môn, giáo viên, học sinh.
 - Chưa kết nối OCR/AI, lưu tệp bài làm, máy chấm hoặc công bố điểm.
 - Chưa có bộ kiểm thử tự động hoặc kiểm thử bảo mật.
@@ -74,7 +76,7 @@ Không thay thế import hiện có từ `@/lib/permissions` cho đến khi có 
 
 1. Xác nhận nền tảng DB và xuất schema hiện tại.
 2. Thiết kế bảng quan hệ tổ chức, phân công, kết quả, chính sách duyệt, audit và version report.
-3. Thực thi quyền ở server/API và RLS; không dựa vào client.
+3. Thực thi quyền ở Worker/server/API và kiểm tra D1 theo scope; Cloudflare D1 không sử dụng PostgreSQL RLS.
 4. Kiểm tra scope theo quan hệ tổ chức thật, không chỉ theo loại scope.
 5. Kiểm thử chéo tài khoản: giáo viên nhiều lớp/môn, người vừa là giáo viên vừa là ban giám hiệu, quản trị ngành chỉ xem, người được ủy quyền duyệt, người không có quyền.
 6. Kiểm tra log không thể bị người dùng thông thường sửa/xóa.
