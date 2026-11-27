@@ -391,6 +391,131 @@ p {
   font-size: 13px;
 }
 
+.teacher-section {
+  background: #eef5f0;
+  padding: 82px 9%;
+}
+
+.teacher-heading {
+  display: grid;
+  grid-template-columns: 1.35fr .65fr;
+  gap: 50px;
+  align-items: end;
+  margin-bottom: 32px;
+}
+
+.teacher-heading h2 {
+  max-width: 820px;
+  font-size: 34px;
+  line-height: 1.35;
+  margin: 12px 0 0;
+}
+
+.teacher-heading p {
+  color: var(--muted);
+  line-height: 1.8;
+  margin: 0;
+}
+
+.teacher-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.teacher-card {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: 14px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  padding: 22px;
+}
+
+.teacher-card:last-child {
+  grid-column: 1 / -1;
+}
+
+.teacher-icon {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  background: var(--mint);
+  font-size: 24px;
+}
+
+.teacher-card h3 {
+  margin: 2px 0 7px;
+  font-size: 16px;
+}
+
+.teacher-card p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.75;
+  margin: 0;
+}
+
+.classroom-block {
+  margin-top: 18px;
+  background: #153e34;
+  color: #fff;
+  border-radius: 18px;
+  padding: 28px;
+}
+
+.classroom-block .eyebrow {
+  color: #b6d9bd;
+}
+
+.classroom-block h3 {
+  margin: 8px 0 22px;
+  font-size: 22px;
+}
+
+.classroom-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.classroom-card {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 4px 10px;
+  align-items: center;
+  border: 1px solid #ffffff22;
+  background: #ffffff0b;
+  border-radius: 12px;
+  padding: 15px;
+  font-size: 12px;
+}
+
+.classroom-card > span {
+  grid-row: 1 / 3;
+  font-size: 21px;
+}
+
+.classroom-card small {
+  color: #c7dacd;
+  font-size: 9px;
+}
+
+.teacher-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.teacher-actions > span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
 .footer {
   background: #f0f6f1;
   border-top: 1px solid var(--line);
@@ -583,6 +708,24 @@ p {
     padding: 55px 7%;
     grid-template-columns: 1fr;
     gap: 10px;
+  }
+
+  .teacher-section {
+    padding: 60px 7%;
+  }
+
+  .teacher-heading {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .teacher-grid,
+  .classroom-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .teacher-card:last-child {
+    grid-column: auto;
   }
 
   .roadmap {

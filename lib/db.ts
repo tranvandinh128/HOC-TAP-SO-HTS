@@ -17,10 +17,17 @@ export class D1BindingError extends Error {
 }
 
 export async function getDB(): Promise<D1Repository> {
+  const env = await getCloudflareEnv();
+  return new D1Repository(env.DB);
+}
+
+export async function getCloudflareEnv(): Promise<CloudflareEnv> {
   let binding: D1Database | undefined;
+  let env: CloudflareEnv;
 
   try {
-    binding = (await getCloudflareContext({ async: true })).env.DB;
+    env = (await getCloudflareContext({ async: true })).env;
+    binding = env.DB;
   } catch (cause) {
     throw new D1BindingError("runtime-context", cause);
   }
@@ -29,5 +36,5 @@ export async function getDB(): Promise<D1Repository> {
     throw new D1BindingError("missing-binding");
   }
 
-  return new D1Repository(binding);
+  return env;
 }

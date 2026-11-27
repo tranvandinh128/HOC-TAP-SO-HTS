@@ -9,49 +9,49 @@ const INITIAL_FIELDS = [
     id: "cong-dan",
     name: "Công dân học tập",
     description: "Kiến thức phổ thông, kỹ năng sống và công nghệ cho người dân.",
-    open: true,
+    accessPolicy: "public",
     status: "Đang hoạt động",
   },
   {
     id: "cong-nhan",
     name: "Công nhân học tập",
     description: "Kiến thức nghề nghiệp, kỹ năng lao động và an toàn sản xuất.",
-    open: true,
+    accessPolicy: "public",
     status: "Đang hoạt động",
   },
   {
     id: "sinh-vien",
     name: "Sinh viên học tập",
     description: "Học liệu đại học, nghiên cứu và phát triển nghề nghiệp.",
-    open: false,
+    accessPolicy: "public",
     status: "Đang hoạt động",
   },
   {
     id: "thpt",
     name: "Học sinh THPT",
     description: "Chương trình học, ôn tập và luyện thi THPT.",
-    open: false,
+    accessPolicy: "public",
     status: "Đang hoạt động",
   },
   {
     id: "thcs",
     name: "Học sinh THCS",
     description: "Kiến thức và tài liệu học tập cấp trung học cơ sở.",
-    open: false,
+    accessPolicy: "public",
     status: "Đang hoạt động",
   },
   {
     id: "tieu-hoc",
     name: "Học sinh tiểu học",
     description: "Học liệu cơ bản và hoạt động giáo dục tiểu học.",
-    open: false,
+    accessPolicy: "public",
     status: "Đang hoạt động",
   },
   {
     id: "luc-luong-vu-trang",
     name: "Lực lượng vũ trang",
     description: "Học tập, huấn luyện và kiến thức dành cho Quân đội – Công an.",
-    open: false,
+    accessPolicy: "verified-membership",
     status: "Đang hoạt động",
   },
 ];
@@ -121,9 +121,9 @@ export default function LearningFieldsPage() {
           </div>
 
           <div className="rounded-xl border bg-white p-5">
-            <p className="text-sm text-slate-500">Nhóm học tập mở</p>
+            <p className="text-sm text-slate-500">Truy cập công khai</p>
             <p className="mt-2 text-3xl font-bold text-purple-700">
-              {fields.filter((field) => field.open).length}
+              {fields.filter((field) => field.accessPolicy === "public").length}
             </p>
           </div>
         </section>
@@ -169,7 +169,9 @@ export default function LearningFieldsPage() {
 
                     <div className="mt-3 flex flex-wrap gap-2">
                       <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-700">
-                        {field.open ? "Không bắt buộc đăng nhập" : "Yêu cầu tài khoản"}
+                        {field.accessPolicy === "public"
+                          ? "Không bắt buộc đăng nhập"
+                          : "Cần membership được xác minh"}
                       </span>
 
                       <span

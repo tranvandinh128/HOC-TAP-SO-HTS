@@ -1,6 +1,11 @@
 
 import Link from "next/link";
 
+import FieldAccessNotice from "@/components/FieldAccessNotice";
+import { getMilitaryFieldAccessStatus } from "@/lib/auth/field-access";
+
+export const dynamic = "force-dynamic";
+
 const learnerGroups = [
   {
     icon: "👥",
@@ -70,7 +75,12 @@ const workflow = [
   "Lưu lịch sử thay đổi và phục vụ công tác báo cáo.",
 ];
 
-export default function QuanLyHocVienPage() {
+export default async function QuanLyHocVienPage() {
+  const accessStatus = await getMilitaryFieldAccessStatus();
+  if (accessStatus !== "granted") {
+    return <FieldAccessNotice status={accessStatus} />;
+  }
+
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-8 md:px-8">
       <div className="mx-auto max-w-6xl">

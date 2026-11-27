@@ -1,6 +1,11 @@
 
 import Link from "next/link";
 
+import FieldAccessNotice from "@/components/FieldAccessNotice";
+import { getMilitaryFieldAccessStatus } from "@/lib/auth/field-access";
+
+export const dynamic = "force-dynamic";
+
 const trainingPrograms = [
   {
     icon: "📚",
@@ -57,7 +62,12 @@ const principles = [
   "Mọi hoạt động quản lý, chỉnh sửa và xác nhận kết quả phải có lịch sử ghi nhận.",
 ];
 
-export default function HuanLuyenPage() {
+export default async function HuanLuyenPage() {
+  const accessStatus = await getMilitaryFieldAccessStatus();
+  if (accessStatus !== "granted") {
+    return <FieldAccessNotice status={accessStatus} />;
+  }
+
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-8 md:px-8">
       <div className="mx-auto max-w-6xl">

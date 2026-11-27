@@ -18,31 +18,31 @@ const learningGroups = [
     number: "03",
     name: "Sinh viên học tập",
     description: "Hỗ trợ học tập, nghiên cứu, kỹ năng nghề nghiệp và phát triển bản thân.",
-    access: "Đăng ký tài khoản",
+    access: "Truy cập mở · tài khoản không bắt buộc",
   },
   {
     number: "04",
     name: "Học sinh THPT",
     description: "Củng cố kiến thức, ôn tập, kiểm tra và định hướng nghề nghiệp.",
-    access: "Đăng ký tài khoản",
+    access: "Truy cập mở · tài khoản không bắt buộc",
   },
   {
     number: "05",
     name: "Học sinh THCS",
     description: "Phát triển kiến thức nền tảng, tư duy và kỹ năng tự học.",
-    access: "Đăng ký tài khoản",
+    access: "Truy cập mở · tài khoản không bắt buộc",
   },
   {
     number: "06",
     name: "Học sinh tiểu học",
     description: "Học tập qua nội dung trực quan, bài tập và hoạt động tương tác phù hợp.",
-    access: "Đăng ký tài khoản",
+    access: "Truy cập mở · tài khoản không bắt buộc",
   },
   {
     number: "07",
     name: "Lực lượng vũ trang",
     description: "Phục vụ học tập, bồi dưỡng kiến thức và kỹ năng trong Quân đội – Công an.",
-    access: "Đăng ký tài khoản",
+    access: "Truy cập mở · tài khoản không bắt buộc",
   },
 ];
 

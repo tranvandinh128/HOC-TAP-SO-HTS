@@ -1,6 +1,11 @@
 
 import Link from "next/link";
 
+import FieldAccessNotice from "@/components/FieldAccessNotice";
+import { getMilitaryFieldAccessStatus } from "@/lib/auth/field-access";
+
+export const dynamic = "force-dynamic";
+
 const attendanceRules = [
   "Hệ thống dự kiến ghi nhận tình trạng tham gia học tập theo chu kỳ 10 phút.",
   "Việc nhận diện khuôn mặt chỉ được triển khai khi có căn cứ pháp lý, sự đồng ý phù hợp và hạ tầng được cấp phép.",
@@ -9,7 +14,12 @@ const attendanceRules = [
   "Dữ liệu điểm danh phải được bảo vệ và chỉ người có thẩm quyền mới được truy cập.",
 ];
 
-export default function DiemDanhLucLuongVuTrangPage() {
+export default async function DiemDanhLucLuongVuTrangPage() {
+  const accessStatus = await getMilitaryFieldAccessStatus();
+  if (accessStatus !== "granted") {
+    return <FieldAccessNotice status={accessStatus} />;
+  }
+
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-8 md:px-8">
       <div className="mx-auto max-w-5xl">

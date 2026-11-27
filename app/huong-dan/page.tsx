@@ -54,7 +54,7 @@ const faqs = [
   {
     question: "Tôi có phải đăng ký tài khoản mới được học không?",
     answer:
-      "Công dân học tập và Công nhân học tập được truy cập mở, không bắt buộc tài khoản. Các nhóm còn lại cần đăng ký tài khoản.",
+      "Các dịch vụ học tập thông thường được truy cập công khai theo chính sách HTS. Tài khoản chỉ cần thiết khi lưu tiến độ, theo dõi kết quả hoặc sử dụng chức năng quản trị.",
   },
   {
     question: "Một tài khoản có thể tham gia nhiều lĩnh vực không?",

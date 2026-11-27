@@ -1,6 +1,11 @@
 
 import Link from "next/link";
 
+import FieldAccessNotice from "@/components/FieldAccessNotice";
+import { getMilitaryFieldAccessStatus } from "@/lib/auth/field-access";
+
+export const dynamic = "force-dynamic";
+
 const categories = [
   {
     icon: "📘",
@@ -56,7 +61,12 @@ const rules = [
   "Việc thêm, sửa, gỡ bỏ tài liệu phải được thực hiện bởi người có thẩm quyền và có nhật ký ghi nhận.",
 ];
 
-export default function TaiLieuPage() {
+export default async function TaiLieuPage() {
+  const accessStatus = await getMilitaryFieldAccessStatus();
+  if (accessStatus !== "granted") {
+    return <FieldAccessNotice status={accessStatus} />;
+  }
+
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-8 md:px-8">
       <div className="mx-auto max-w-6xl">

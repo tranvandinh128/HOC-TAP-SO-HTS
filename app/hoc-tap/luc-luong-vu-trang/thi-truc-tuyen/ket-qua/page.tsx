@@ -1,6 +1,11 @@
 
 import Link from "next/link";
 
+import FieldAccessNotice from "@/components/FieldAccessNotice";
+import { getMilitaryFieldAccessStatus } from "@/lib/auth/field-access";
+
+export const dynamic = "force-dynamic";
+
 const resultFields = [
   "Họ và tên thí sinh",
   "Đơn vị công tác",
@@ -23,7 +28,12 @@ const resultRules = [
   "Thí sinh được tra cứu kết quả thuộc phạm vi tài khoản và quyền truy cập của mình.",
 ];
 
-export default function KetQuaThiPage() {
+export default async function KetQuaThiPage() {
+  const accessStatus = await getMilitaryFieldAccessStatus();
+  if (accessStatus !== "granted") {
+    return <FieldAccessNotice status={accessStatus} />;
+  }
+
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-8 md:px-8">
       <div className="mx-auto max-w-5xl">

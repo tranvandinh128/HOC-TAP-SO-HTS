@@ -1,0 +1,201 @@
+﻿import { NextResponse } from "next/server";
+
+import { D1RepositoryError } from "@/lib/d1/repository";
+import { D1BindingError, getDB } from "@/lib/db";
+import type { D1Repository } from "@/lib/d1/repository";
+
+export class AuthApiError extends Error {
+  constructor(
+    readonly status: number,
+    readonly code: string,
+    message: string,
+  ) {
+    super(message);
+    this.name = "AuthApiError";
+  }
+}
+
+type AuthApiHandler = (
+  db: D1Repository,
+  request: Request,
+) => Promise<NextResponse>;
+
+export async function handleAuthApi(
+  request: Request,
+  handler: AuthApiHandler,
+  options: { sameOrigin?: boolean; requireSchema?: boolean } = {},
+): Promise<NextResponse> {
+  try {
+    if (options.sameOrigin !== false && request.method !== "GET") {
+      assertSameOrigin(request);
+    }
+
+    const db = await getDB();
+    if (options.requireSchema !== false) {
+      await assertAuthSchema(db);
+    }
+
+    return await handler(db, request);
+  } catch (error) {
+    if (error instanceof AuthApiError) {
+      return NextResponse.json(
+        { error: error.code, message: error.message },
+        { status: error.status, headers: { "Cache-Control": "no-store" } },
+      );
+    }
+
+    if (error instanceof D1BindingError) {
+      console.error("[auth] Cloudflare D1 binding unavailable.", {
+        reason: error.reason,
+      });
+      return NextResponse.json(
+        {
+          error: "auth_storage_unavailable",
+          message: "Dá»‹ch vá»¥ tÃ i khoáº£n hiá»‡n chÆ°a káº¿t ná»‘i Ä‘Æ°á»£c cÆ¡ sá»Ÿ dá»¯ liá»‡u.",
+        },
+        { status: 503, headers: { "Cache-Control": "no-store" } },
+      );
+    }
+
+    if (error instanceof D1RepositoryError) {
+      console.error("[auth] D1 request failed.", {
+        operation: error.operation,
+      });
+      return NextResponse.json(
+        {
+          error: "auth_storage_unavailable",
+          message: "Dá»‹ch vá»¥ tÃ i khoáº£n chÆ°a sáºµn sÃ ng. Kiá»ƒm tra schema HTS Auth Ä‘Ã£ Ä‘Æ°á»£c cÃ i Ä‘áº·t.",
+        },
+        { status: 503, headers: { "Cache-Control": "no-store" } },
+      );
+    }
+
+    console.error("[auth] Unexpected request failure.", {
+      errorName: error instanceof Error ? error.name : "unknown",
+    });
+    return NextResponse.json(
+      {
+        error: "internal_error",
+        message: "ÄÃ£ xáº£y ra lá»—i mÃ¡y chá»§. Vui lÃ²ng thá»­ láº¡i sau.",
+      },
+      { status: 500, headers: { "Cache-Control": "no-store" } },
+    );
+  }
+}
+
+export function assertSameOrigin(request: Request): void {
+  const origin = request.headers.get("origin");
+  if (!origin) {
+    throw new AuthApiError(
+      403,
+      "origin_required",
+      "YÃªu cáº§u khÃ´ng cÃ³ Origin há»£p lá»‡.",
+    );
+  }
+
+  let requestOrigin: string;
+  try {
+    requestOrigin = new URL(request.url).origin;
+  } catch {
+    throw new AuthApiError(
+      400,
+      "invalid_request",
+      "KhÃ´ng thá»ƒ xÃ¡c minh nguá»“n yÃªu cáº§u.",
+    );
+  }
+
+  if (origin !== requestOrigin) {
+    throw new AuthApiError(
+      403,
+      "cross_origin_request",
+      "YÃªu cáº§u khÃ¡c nguá»“n bá»‹ tá»« chá»‘i.",
+    );
+  }
+}
+
+export async function assertAuthSchema(db: D1Repository): Promise<void> {
+  await db.first(
+    `SELECT 1
+     FROM auth_credentials, auth_sessions, auth_password_resets,
+          auth_rate_limits, hts_admin_request_reviews, hts_role_grants,
+          hts_auth_events
+     LIMIT 0`,
+  );
+}
+
+export async function readJsonObject(
+  request: Request,
+  maxBytes = 16_384,
+): Promise<Record<string, unknown>> {
+  const contentType = request.headers.get("content-type") ?? "";
+  if (!contentType.toLowerCase().includes("application/json")) {
+    throw new AuthApiError(
+      415,
+      "unsupported_content_type",
+      "YÃªu cáº§u pháº£i sá»­ dá»¥ng JSON.",
+    );
+  }
+
+  const contentLength = Number(request.headers.get("content-length") ?? 0);
+  if (Number.isFinite(contentLength) && contentLength > maxBytes) {
+    throw new AuthApiError(413, "request_too_large", "Dá»¯ liá»‡u gá»­i lÃªn quÃ¡ lá»›n.");
+  }
+
+  const text = await request.text();
+  if (new TextEncoder().encode(text).byteLength > maxBytes) {
+    throw new AuthApiError(413, "request_too_large", "Dá»¯ liá»‡u gá»­i lÃªn quÃ¡ lá»›n.");
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    throw new AuthApiError(400, "invalid_json", "Ná»™i dung JSON khÃ´ng há»£p lá»‡.");
+  }
+
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new AuthApiError(400, "invalid_request", "Dá»¯ liá»‡u yÃªu cáº§u khÃ´ng há»£p lá»‡.");
+  }
+
+  return parsed as Record<string, unknown>;
+}
+
+export function requiredString(
+  value: unknown,
+  fieldName: string,
+  maxLength: number,
+): string {
+  if (
+    typeof value !== "string" ||
+    value.trim().length === 0 ||
+    value.length > maxLength
+  ) {
+    throw new AuthApiError(
+      400,
+      "invalid_input",
+      `TrÆ°á»ng ${fieldName} khÃ´ng há»£p lá»‡.`,
+    );
+  }
+  return value.trim();
+}
+
+export function stringArray(
+  value: unknown,
+  fieldName: string,
+  maxItems: number,
+): string[] {
+  if (
+    !Array.isArray(value) ||
+    value.length > maxItems ||
+    value.some((entry) => typeof entry !== "string" || entry.length > 200)
+  ) {
+    throw new AuthApiError(
+      400,
+      "invalid_input",
+      `Danh sÃ¡ch ${fieldName} khÃ´ng há»£p lá»‡.`,
+    );
+  }
+
+  return [...new Set(value.map((entry) => (entry as string).trim()))];
+}
+
