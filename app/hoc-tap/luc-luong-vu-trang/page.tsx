@@ -1,10 +1,15 @@
 import FieldAccessNotice from "@/components/FieldAccessNotice";
+import MilitaryLearningDashboard from "@/components/MilitaryLearningDashboard";
 import { getMilitaryFieldAccessStatus } from "@/lib/auth/field-access";
 
 export const dynamic = "force-dynamic";
 
 export default async function LucLuongVuTrangPage() {
   const accessStatus = await getMilitaryFieldAccessStatus();
+
+  if (accessStatus === "granted") {
+    return <MilitaryLearningDashboard />;
+  }
 
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-10 text-slate-800 md:px-8">
@@ -22,13 +27,7 @@ export default async function LucLuongVuTrangPage() {
       </section>
 
       <div className="mx-auto mt-6 max-w-4xl">
-        {accessStatus === "granted" ? (
-          <section className="notice">
-            Nội dung học tập đang được kết nối và sẽ được hiển thị khi sẵn sàng.
-          </section>
-        ) : (
-          <FieldAccessNotice status={accessStatus} />
-        )}
+        <FieldAccessNotice status={accessStatus} />
       </div>
     </main>
   );
