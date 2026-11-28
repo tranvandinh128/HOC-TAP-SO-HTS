@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import MilitaryMembershipRequest from "@/components/MilitaryMembershipRequest";
 import type { MilitaryFieldAccessStatus } from "@/lib/auth/field-access";
 
 type DeniedMilitaryFieldAccessStatus = Exclude<
@@ -48,6 +49,9 @@ export default function FieldAccessNotice({
         <Link className="button primary" href="/dang-nhap">
           Đăng nhập
         </Link>
+      ) : null}
+      {status === "membership-unverified" ? (
+        <MilitaryMembershipRequest />
       ) : null}
     </section>
   );

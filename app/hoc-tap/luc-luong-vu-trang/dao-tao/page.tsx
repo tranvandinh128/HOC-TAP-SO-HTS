@@ -2,6 +2,7 @@
 import Link from "next/link";
 
 import FieldAccessNotice from "@/components/FieldAccessNotice";
+import MilitaryTrainingPrograms from "@/components/MilitaryTrainingPrograms";
 import { getMilitaryFieldAccessStatus } from "@/lib/auth/field-access";
 
 export const dynamic = "force-dynamic";
@@ -99,13 +100,15 @@ export default async function DaoTaoPage() {
           </p>
         </section>
 
+        <MilitaryTrainingPrograms />
+
         <section className="mt-8">
           <h2 className="text-xl font-bold text-slate-900">
-            Danh mục chương trình đào tạo
+            Các nhóm nội dung đào tạo
           </h2>
           <p className="mt-2 text-sm text-slate-600">
-            Các chương trình được phân loại theo mục tiêu và
-            nội dung đào tạo.
+            Đây là các nhóm nghiệp vụ tham khảo, không phải dữ liệu chương
+            trình đã được tạo trong hệ thống.
           </p>
 
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
@@ -196,10 +199,10 @@ export default async function DaoTaoPage() {
             Trạng thái triển khai
           </h2>
           <p className="mt-2 text-sm leading-6 text-blue-800">
-            Trang hiện xây dựng giao diện và cấu trúc nội dung.
-            Chức năng đăng ký đào tạo, phê duyệt, quản lý học viên,
-            cập nhật kết quả và báo cáo sẽ được kết nối cơ sở dữ liệu
-            trong giai đoạn hoàn thiện tiếp theo.
+            Giao diện quản lý chương trình, đăng ký học, lịch học, bài học nháp
+            và rà soát nội dung đã được chuẩn bị. Các API cần migration D1 được
+            chủ dự án phê duyệt và áp dụng trước khi có thể dùng thực tế; trang
+            không tạo số liệu mẫu.
           </p>
         </section>
 

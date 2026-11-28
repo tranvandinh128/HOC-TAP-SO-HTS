@@ -2,9 +2,9 @@ import "server-only";
 
 import { headers } from "next/headers";
 
-import { getAuthenticatedUser } from "@/lib/auth/service";
 import { readSessionCookie } from "@/lib/auth/security";
 import { getDB } from "@/lib/db";
+import { getMilitaryAccessContext } from "@/lib/military/access";
 
 export type MilitaryFieldAccessStatus =
   | "granted"
@@ -24,13 +24,12 @@ export async function getMilitaryFieldAccessStatus(): Promise<MilitaryFieldAcces
       return "sign-in-required";
     }
 
-    const user = await getAuthenticatedUser(await getDB(), request);
-    if (!user) {
+    const access = await getMilitaryAccessContext(await getDB(), request);
+    if (!access) {
       return "sign-in-required";
     }
 
-    // Generic learning-field membership is not proof of approved military membership.
-    return "membership-unverified";
+    return access.membershipApproved ? "granted" : "membership-unverified";
   } catch (error) {
     console.error("[field-access] Could not verify restricted-field access.", {
       errorName: error instanceof Error ? error.name : "unknown",

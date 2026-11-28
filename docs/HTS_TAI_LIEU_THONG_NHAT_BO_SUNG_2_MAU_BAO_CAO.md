@@ -1,8 +1,8 @@
 # HỌC TẬP SỐ (HTS)
 # TÀI LIỆU TỔNG HỢP CHUẨN – KIẾN TRÚC, NGHIỆP VỤ, DỮ LIỆU, BẢO MẬT VÀ LỘ TRÌNH TRIỂN KHAI
 
-**Phiên bản:** 1.0 – Bản hợp nhất tài liệu  
-**Ngày tổng hợp:** 27/11/2026  
+**Phiên bản:** 1.1 – Bản cập nhật hợp nhất ngày 28/11/2026  
+**Ngày cập nhật:** 28/11/2026  
 **Phạm vi:** Hợp nhất các tài liệu thiết kế, kế hoạch, báo cáo kiểm toán và báo cáo triển khai đã được cung cấp trong cuộc trao đổi; bổ sung phần trạng thái kiểm tra mã nguồn được xác nhận trong cuộc trao đổi ngày 27/11/2026.  
 **Trạng thái:** Tài liệu chuẩn nghiệp vụ/kỹ thuật hợp nhất để thay thế bộ tài liệu phân tán trong `docs/`. Đây không phải xác nhận HTS đã hoàn tất triển khai hoặc đủ điều kiện vận hành production.
 
@@ -887,3 +887,201 @@ Tài liệu này là bản hợp nhất để làm nguồn tham chiếu duy nh�
 ### Bổ sung nguồn tài liệu – 27/11/2026
 
 Tệp `Mẫu nhận quà công đoàn và quân trang(1).xlsx` được kiểm tra có hai trang tính: `DANH SÁCH NHẬN QUÀ CÔNG ĐOÀN` và `DANH SÁCH NHẬN QUÂN TRANG`. Hai mẫu đã được mô tả thành hai mục độc lập tại **12.5**. Nội dung mô tả bám theo tiêu đề và trường dữ liệu thực tế trong hai trang tính; các quy tắc triển khai trong HTS được đánh dấu là yêu cầu đề xuất, không phải chức năng đã tồn tại.
+\n\n---\n\n# PHẦN CẬP NHẬT ĐƯỢC CHỦ DỰ ÁN XÁC NHẬN – 28/11/2026
+
+> Phần này bổ sung và làm rõ yêu cầu phát triển HTS, đặc biệt là phân hệ **Lực lượng vũ trang**. Đây là đặc tả mục tiêu và kế hoạch giao việc cho AI/Copilot, không phải bằng chứng rằng các chức năng đã được lập trình hoặc nghiệm thu. Khi có khác biệt với lộ trình cũ trong tài liệu, phần cập nhật này là yêu cầu mới hơn do chủ dự án xác nhận; các nguyên tắc bảo mật, kiến trúc Workers + D1 và giới hạn production vẫn giữ nguyên.
+
+## A. Định hướng phát triển tổng thể HTS
+
+1. Phát triển HTS theo hướng nền tảng học tập, giảng dạy, quản lý giáo dục và kết nối cộng đồng học tập trên môi trường số.
+2. Ưu tiên hoàn thiện Web2 trước; thiết kế kiến trúc có khả năng mở rộng Web3 về sau, không đưa tính năng Web3/Pi chưa được phê duyệt vào luồng bắt buộc của người học thông thường.
+3. Giữ lại và kế thừa chức năng đang hoạt động; không xây dựng lại toàn bộ hệ thống, không xóa hoặc đổi tên tùy tiện route, component, API, migration hay dữ liệu hiện có.
+4. Một tài khoản HTS có thể đăng ký nhiều lĩnh vực/nhóm học tập hợp lệ. Membership, vai trò, quyền, phạm vi, phân công và gói quản trị là các khái niệm độc lập.
+5. Học tập thông thường trong cả bảy lĩnh vực miễn phí. Người học không cần tài khoản Pi, ví Pi hoặc giấy tờ định danh chỉ để truy cập nội dung học tập mở.
+6. Pi chỉ là điều kiện của chức năng Pi hoặc một số entitlement quản trị đã được quy định. Pi UID phải được xác minh phía server; không lưu passphrase/secret ví. KYC, sở hữu ví hoặc thanh toán không tự động cấp role quản trị.
+7. Super Admin tối cao chỉ được khởi tạo/xác minh theo quy trình có thẩm quyền; không tự tạo tài khoản Super Admin từ giao diện đăng ký thông thường. Super Admin có quyền phê duyệt/cấp và thu hồi phạm vi Field Admin.
+8. Dùng feature flag tập trung với ba trạng thái `ACTIVE`, `COMING_SOON`, `HIDDEN`; kiểm tra ở cả server và client. Feature flag chỉ điều khiển khả năng hiển thị/khả dụng, không thay thế authorization.
+
+## B. Bảy lĩnh vực học tập và quy tắc riêng
+
+| Lĩnh vực | Quy tắc cốt lõi |
+|---|---|
+| Công dân học tập | Nội dung mở; không bắt buộc đăng nhập hoặc điểm danh định kỳ bằng nhận diện khuôn mặt. |
+| Công nhân học tập | Nội dung mở; không bắt buộc đăng nhập hoặc điểm danh định kỳ bằng nhận diện khuôn mặt. |
+| Sinh viên học tập | Học tập miễn phí; tài khoản/membership áp dụng theo chức năng. |
+| Học sinh THPT | Học tập miễn phí; bảo vệ dữ liệu trẻ em và quyền của người giám hộ theo chính sách được duyệt. |
+| Học sinh THCS | Học tập miễn phí; bảo vệ dữ liệu trẻ em và quyền của người giám hộ theo chính sách được duyệt. |
+| Học sinh Tiểu học | Học tập miễn phí; bảo vệ dữ liệu trẻ em và quyền của người giám hộ theo chính sách được duyệt. |
+| Lực lượng vũ trang | Khu vực hạn chế; mặc định từ chối cho đến khi tư cách và membership được xác minh/phê duyệt đúng thẩm quyền, đúng đơn vị và phạm vi. |
+
+## C. Phân hệ Lực lượng vũ trang – phạm vi chức năng mục tiêu
+
+Phân hệ được tổ chức thành **06 nhóm, 30 chức năng con**. Danh mục dưới đây là phạm vi sản phẩm cần khảo sát, thiết kế và triển khai theo từng giai đoạn; không khẳng định hiện đã có đủ các module.
+
+### Nhóm 1 – Đào tạo, giáo dục (01–06)
+
+1. Quản lý chương trình đào tạo.
+2. Giáo dục chính trị.
+3. Giáo dục pháp luật.
+4. Huấn luyện nghiệp vụ.
+5. Đào tạo công nghệ thông tin.
+6. Đào tạo ngoại ngữ.
+
+Mỗi chức năng cần xem xét danh mục chương trình, kế hoạch, nội dung/tài liệu, bài học, đối tượng học, tiến độ, kết quả và báo cáo theo quyền.
+
+### Nhóm 2 – Huấn luyện, rèn luyện (07–11)
+
+7. Kế hoạch huấn luyện.
+8. Giáo dục thể chất và rèn luyện thể lực.
+9. Điều lệnh, điều lệ và kỷ luật.
+10. Kỹ năng chuyên môn.
+11. Kết quả huấn luyện.
+
+Quản lý lịch/kế hoạch, nội dung, người phụ trách, đối tượng tham gia, kết quả và thống kê; không tự đưa tài liệu mật hoặc dữ liệu nghiệp vụ nhạy cảm vào hệ thống thông thường.
+
+### Nhóm 3 – Quản lý, điều hành (12–16)
+
+12. Quản lý quân số học tập.
+13. Quản lý cán bộ, giáo viên/giảng viên.
+14. Quản lý đơn vị, tổ chức.
+15. Lịch công tác và kế hoạch.
+16. Hồ sơ học tập.
+
+Hỗ trợ danh sách, tìm kiếm, lọc, nhóm, tiến độ, tổng hợp và xuất dữ liệu theo permission, scope và mục đích được duyệt. Không mặc định đây là hệ thống quản lý nhân sự/quân số chính thức của Quân đội.
+
+### Nhóm 4 – Thi, kiểm tra, đánh giá (17–21)
+
+17. Ngân hàng câu hỏi.
+18. Thi trực tuyến.
+19. Kiểm tra định kỳ.
+20. Chấm điểm và xếp loại.
+21. Theo dõi tiến độ và kết quả.
+
+Hỗ trợ loại câu hỏi phù hợp, trộn câu hỏi/đáp án, lịch thi, lượt làm bài, tự động chấm câu hỏi có đáp án xác định, lưu lịch sử và báo cáo. AI chỉ gợi ý; điểm chính thức/xếp loại phải do người có thẩm quyền rà soát và phê duyệt. Có biện pháp chống gian lận tương xứng, không thu thập dữ liệu quá mức.
+
+### Nhóm 5 – Học liệu, nghiên cứu (22–26)
+
+22. Thư viện số.
+23. Bài giảng điện tử.
+24. Giáo trình và tài liệu tham khảo.
+25. Nghiên cứu khoa học.
+26. Sáng kiến, kinh nghiệm.
+
+Quản lý phân loại, tìm kiếm, tác giả, nguồn, phiên bản, bản quyền, trạng thái rà soát/phê duyệt và lưu trữ. Không tải lên, lập chỉ mục, tóm tắt hoặc phân phối tài liệu mật/chưa được phép; nội dung hạn chế phải có kiểm soát truy cập trước khi trả cả metadata, kết quả tìm kiếm hay tệp.
+
+### Nhóm 6 – Báo cáo, chuyển đổi số (27–30)
+
+27. Trung tâm báo cáo.
+28. Thống kê, phân tích.
+29. Trợ lý AI học tập.
+30. Dashboard tổng hợp.
+
+Hỗ trợ báo cáo theo đơn vị/kỳ, tiến độ/kết quả/điểm danh, biểu đồ và export Excel/PDF theo quyền. AI được phân tích dữ liệu người dùng được phép xem và soạn bản nháp; báo cáo chính thức phải có người rà soát, phê duyệt.
+
+## D. Các dịch vụ giáo dục dùng chung ngoài phân hệ Lực lượng vũ trang
+
+- Quản lý chương trình, môn học, khóa học, bài học, lớp và nhóm học tập theo từng lĩnh vực.
+- Một tài khoản có thể tham gia nhiều nhóm học; dữ liệu và nội dung chỉ hiển thị theo membership, vai trò và phạm vi hợp lệ.
+- Dịch vụ giáo viên có thể gồm lập kế hoạch bài dạy, quản lý lớp/học sinh, ngân hàng câu hỏi, gợi ý chấm bài bằng AI, phân tích chất lượng dạy-học, thư viện học liệu và công cụ quản trị.
+- Lớp học trực tuyến/nhóm học có thể gồm phòng học video, tài liệu, giao bài, thảo luận, điểm danh theo chính sách, kết quả và phân tích. WebRTC/video là hạng mục cần thiết kế, kiểm thử chi phí/bảo mật và phê duyệt riêng trước khi vận hành thực tế.
+- AI hỗ trợ giáo viên và người học: giải thích, gợi ý, tạo bản nháp, phân tích tiến độ; giáo viên/người có thẩm quyền quyết định nội dung công bố và kết quả chính thức.
+
+## E. Chính sách AI và nội dung
+
+1. AI không được tự cấp role/permission/scope, xác minh danh tính hoặc membership Lực lượng vũ trang, phê duyệt quyền quản trị, phê duyệt thanh toán, công bố nội dung chính thức, ký hoặc phê duyệt báo cáo, hay chốt điểm chính thức.
+2. Nội dung do AI tạo phải có trạng thái bản nháp, nguồn/phiên bản khi có, người chịu trách nhiệm và lịch sử chỉnh sửa.
+3. Tin/bài lấy từ nguồn ngoài phải ghi nguồn, ngày truy cập và giữ ở trạng thái chờ con người rà soát; không tự đăng.
+4. AI chỉ được xử lý dữ liệu mà người dùng hiện tại có quyền truy cập. Không đưa dữ liệu cá nhân nhạy cảm, hồ sơ quân sự, tài liệu mật hoặc dữ liệu sinh trắc sang dịch vụ AI ngoài khi chưa có phê duyệt và đánh giá riêng.
+5. AI không xóa nội dung đã xuất bản; mọi thao tác sửa/ẩn/gỡ nội dung đã công bố thuộc người có thẩm quyền và phải audit.
+
+## F. Quy tắc an toàn riêng cho Lực lượng vũ trang
+
+- Mặc định deny. Chưa xác minh hoặc chưa được duyệt thì không trả nội dung, metadata, danh sách, kết quả tìm kiếm, preview, tệp hay export nội bộ.
+- Quyết định duyệt phải ràng buộc account, tư cách, đơn vị, vai trò, scope, thời hạn và người duyệt. Thu hồi/đình chỉ phải chặn cả phiên hiện có, API, tìm kiếm, cache và URL tải tệp.
+- Không dùng tài khoản Pi, ví Pi, KYC hoặc gói trả phí làm bằng chứng thay thế cho tư cách quân nhân hay phê duyệt của đơn vị.
+- Không coi HTS là hệ thống lưu trữ bí mật nhà nước/quân sự. Chỉ dùng tài liệu được phép lưu trữ trong môi trường này; dữ liệu thực nhạy cảm cần thẩm quyền, đánh giá và phê duyệt riêng.
+- Dữ liệu quân số, hồ sơ cá nhân, CCCD, số điện thoại, điểm thi và tệp phải tối thiểu hóa, che/mask, giới hạn export, audit và có thời hạn lưu.
+
+## G. Kế hoạch triển khai phân hệ Lực lượng vũ trang – 08 giai đoạn
+
+Thực hiện tuần tự, không giao AI làm đồng thời nhiều giai đoạn chồng lấn. Mỗi giai đoạn phải báo cáo kết quả và chờ chủ dự án xác nhận trước khi chuyển giai đoạn tiếp theo.
+
+| Giai đoạn | Phạm vi | Kết quả bắt buộc |
+|---|---|---|
+| 1. Kiểm kê, lập bản đồ | Đọc cấu trúc `app/hoc-tap/luc-luong-vu-trang/`, `components/`, `lib/`, `app/api/`, `migrations/`, `next.config.ts`, `open-next.config.ts`, `wrangler.jsonc`; rà soát module học viên, huấn luyện, điểm danh, giám sát, thi trực tuyến, tài liệu, báo cáo, import. | Báo cáo chức năng có sẵn/thiếu/đang hoạt động, tệp liên quan, phụ thuộc, rủi ro và đề xuất thay đổi. **Chỉ đọc, chưa sửa mã.** |
+| 2. Menu và Dashboard | Hoàn thiện menu nhóm 6 nhóm/30 chức năng, mở rộng/thu gọn, icon, tìm kiếm, dashboard, responsive; tái sử dụng layout/component hiện có. | Điều hướng hợp lệ, trạng thái `ACTIVE`/`COMING_SOON`/`HIDDEN`, không làm hỏng header/sidebar chung hoặc sáu lĩnh vực còn lại. |
+| 3. Đào tạo, giáo dục | Triển khai/hoàn thiện nhóm chức năng 01–06 và huấn luyện 07–11 theo inventory và scope được duyệt. | Kế hoạch, nội dung, người học, tiến độ, kết quả, thống kê; không dùng dữ liệu giả để giả lập đã kết nối backend. |
+| 4. Quản lý, điều hành | Triển khai chức năng 12–16. | Quản lý quân số học tập, cán bộ/giáo viên, tổ chức, lịch/kế hoạch và hồ sơ; lọc/xuất theo quyền. |
+| 5. Thi, kiểm tra, đánh giá | Triển khai chức năng 17–21. | Ngân hàng câu hỏi, lịch thi, lượt làm bài, chấm tự động phù hợp, rà soát điểm, phê duyệt và lịch sử. |
+| 6. Học liệu, nghiên cứu | Triển khai chức năng 22–26. | Thư viện/bài giảng/tài liệu/nghiên cứu/sáng kiến có nguồn, phiên bản, bản quyền, duyệt và phân quyền. |
+| 7. Báo cáo, phân tích, AI | Triển khai chức năng 27–30. | Trung tâm báo cáo, dashboard, thống kê và AI hỗ trợ; báo cáo chính thức có người duyệt. |
+| 8. Kiểm thử và rà soát bảo mật | Kiểm thử toàn phân hệ và hồi quy các chức năng chung/sáu lĩnh vực còn lại. | Báo cáo typecheck, lint, build, test quyền, test deny-by-default, API, D1, R2, export, lỗi còn lại và tiêu chí nghiệm thu. |
+
+### Quy tắc bắt buộc ở từng giai đoạn
+
+1. Trước khi sửa, kiểm tra mã và schema D1/migrations hiện có; không tạo bảng trùng hoặc migration chỉ vì tên bảng xuất hiện trong tài liệu.
+2. Không xóa, đổi tên, di chuyển hoặc viết lại trang/module đang có nếu chưa có lý do và phê duyệt rõ. Không phục hồi phần đã xóa theo suy đoán.
+3. Không sửa package/dependency nếu không thật sự cần; không tự thay đổi cấu hình deploy, secret, database remote hoặc production.
+4. Không dùng `git reset`, `git clean`, `git checkout` để ghi đè thay đổi; không commit, push, pull, sync hoặc đổi branch nếu chủ dự án chưa yêu cầu.
+5. Không sửa chồng lên công việc Copilot đang chạy. Chỉ giao một giai đoạn tại một thời điểm; đợi Copilot hoàn tất và báo cáo trước khi giao giai đoạn tiếp theo.
+6. Sau mỗi giai đoạn, chạy lần lượt `npm.cmd run typecheck`, `npm.cmd run lint`, `npm.cmd run build`. Nếu lệnh nào lỗi, dừng chuyển giai đoạn, chỉ xử lý lỗi thuộc phạm vi được phép và báo cáo trung thực. Không tắt rule, không bỏ qua lỗi để làm xanh kiểm tra.
+7. Không chạy migration remote, deploy hoặc thay đổi production. Mọi thao tác đó cần yêu cầu/phê duyệt riêng.
+8. Sau mỗi giai đoạn báo cáo: chức năng hoàn thành/chưa hoàn thành; tệp tạo/sửa; API/service; schema/migration liên quan; quyền và bảo mật; ảnh hưởng tới chức năng cũ; kết quả ba lệnh kiểm tra; rủi ro và việc cần chủ dự án quyết định.
+
+## H. Trạng thái tính năng và tiêu chí nghiệm thu
+
+- `ACTIVE`: đã triển khai và kiểm thử đủ trong môi trường được nêu; cần ghi rõ phạm vi kiểm thử và phụ thuộc.
+- `COMING_SOON`: đã có thiết kế/điểm vào nhưng chưa sẵn sàng cho người dùng; không được giả vờ là chức năng hoàn chỉnh.
+- `HIDDEN`: chưa công bố/không cho truy cập; server vẫn phải từ chối request trực tiếp nếu chưa được cấp quyền.
+- Một module chỉ được coi là hoàn thành khi UI, API/service, dữ liệu, authorization, audit, xử lý lỗi và kiểm thử tương ứng hoạt động. Giao diện tĩnh hoặc dữ liệu demo không đạt tiêu chí này.
+- Không mở Lực lượng vũ trang cho người dùng thật trước khi kiểm thử độc lập xác minh tư cách, phê duyệt, thu hồi, session revoke, tìm kiếm, cache, tệp và export.
+
+## I. Các quyết định tiếp tục cần chủ dự án xác nhận trước khi vận hành thực tế
+
+1. Cơ quan/đơn vị có thẩm quyền xác minh và phê duyệt thành viên Lực lượng vũ trang; loại giấy tờ/chứng cứ được phép tiếp nhận.
+2. Phân cấp đơn vị, phạm vi dữ liệu, người duyệt, thời hạn membership và quy trình khi chuyển đơn vị/ra quân/đình chỉ.
+3. Phân loại tài liệu nào được phép lưu trong HTS; thời hạn lưu và cách xử lý khi có yêu cầu xóa/thu hồi.
+4. Chính sách điểm danh, chu kỳ nhận diện (yêu cầu ban đầu nêu chu kỳ 15 phút và khoảng nhận diện 10 phút), ngoại lệ và phương thức thay thế không sinh trắc. Không triển khai nhận diện khuôn mặt trước khi phê duyệt riêng.
+5. Quy tắc tính điểm/xếp loại, người có quyền chốt điểm, thời hạn phúc khảo và lưu lịch sử.
+6. Nhà cung cấp AI/video/email, dữ liệu được phép gửi, vị trí xử lý, chi phí, lưu giữ và cơ chế tắt khẩn cấp.
+7. Danh mục feature flag, owner, trạng thái mặc định và quy trình phát hành từng nhóm người dùng.
+
+## J. Chỉ dẫn giao việc cho AI/Copilot
+
+Chủ dự án sẽ cung cấp một prompt nguyên tắc chung, sau đó gửi riêng từng prompt giai đoạn 1 đến 8. AI phải bắt đầu bằng kiểm kê, không viết mã trước khi báo cáo hiện trạng và đề xuất tệp cần thay đổi. Chỉ chuyển giai đoạn sau khi chủ dự án xem xét, xác nhận báo cáo của giai đoạn trước. AI phải tuân thủ toàn bộ giới hạn tại các mục trên và kiến trúc chuẩn của HTS.
+
+
+## K. Liên kết giữa hai mẫu báo cáo bổ sung và phân hệ Lực lượng vũ trang
+
+Hai mẫu **Danh sách nhận quà Công đoàn** và **Danh sách nhận quân trang** tại mục 12.5 vẫn là hai mẫu báo cáo nghiệp vụ độc lập. Không mặc định cả hai mẫu đều thuộc phân hệ Lực lượng vũ trang hoặc được phép dùng chung cho mọi đơn vị. Đơn vị quản lý, đối tượng được xem, trường dữ liệu, người duyệt và thời hạn lưu phải được cấu hình theo thẩm quyền.
+
+- Mẫu quà Công đoàn: dữ liệu CCCD, số điện thoại, địa chỉ và người nhận hộ là dữ liệu cá nhân; chỉ thu thập khi có mục đích, quyền và căn cứ phù hợp.
+- Mẫu quân trang: thông tin cấp phát và tiêu chuẩn cần giới hạn theo đơn vị/nhiệm vụ; không tự suy diễn đây là hồ sơ hậu cần chính thức hay dữ liệu được phép đưa lên môi trường công khai.
+- Không đưa dữ liệu người thật vào dữ liệu demo, prompt AI công cộng, GitHub hoặc báo cáo chia sẻ công khai.
+- Import Excel phải qua vùng staging, kiểm tra định dạng/trùng lặp/thiếu dữ liệu, hiển thị cảnh báo và có người xác nhận trước khi ghi nhận chính thức.
+- Công thức tổng hợp, đơn vị tính, kỳ báo cáo và quy tắc xác nhận số liệu phải do đơn vị nghiệp vụ chốt; AI không tự quyết định.
+
+## L. Bảng kiểm bàn giao cho từng giai đoạn Copilot
+
+| Hạng mục | Nội dung phải có trong báo cáo bàn giao |
+|---|---|
+| Phạm vi | Giai đoạn, yêu cầu đã xử lý, yêu cầu chưa xử lý và lý do. |
+| Mã nguồn | Danh sách file tạo/sửa/xóa (xóa phải có phê duyệt), mô tả thay đổi và phụ thuộc. |
+| Dữ liệu | Bảng D1 đã dùng, migration hiện có, schema được kiểm tra; nêu rõ không chạy remote migration. |
+| API và bảo mật | Endpoint/service, session, role, permission, scope, membership, deny-by-default và audit. |
+| Giao diện | Route, trạng thái feature flag, responsive, loading/empty/error states và khả năng truy cập. |
+| Hồi quy | Xác nhận không làm ảnh hưởng sáu lĩnh vực còn lại, header/sidebar, auth và chức năng chung. |
+| Kiểm tra | Kết quả nguyên văn/tóm tắt của typecheck, lint, build; lỗi và cảnh báo chưa xử lý. |
+| Quyết định | Rủi ro, giả định, nội dung cần chủ dự án xác nhận trước khi tiếp tục. |
+
+## M. Quy tắc bảo toàn tài liệu và thay thế bản cũ
+
+1. Hai tệp được cập nhật giữ nguyên tên chuẩn để thuận tiện thay thế trong repository.
+2. Bản mới được tạo từ nội dung hiện hành đã đọc, giữ lại các phần kiến trúc, bảo mật, tài khoản, Pi, báo cáo và hai mẫu Excel; phần bổ sung ngày 28/11/2026 làm rõ phạm vi mới.
+3. Không xóa bản gốc trong Library hoặc lịch sử Git bằng thao tác tự động. Khi đưa vào repository, chủ dự án/Copilot cần thay đúng hai tệp đích sau khi đã lưu bản dự phòng và xem `git diff`.
+4. Không xóa các tài liệu nguồn, migration hoặc mã nguồn khác chỉ vì tài liệu này được cập nhật. Danh mục tài liệu cũ chỉ được dọn sau khi đối chiếu và có phê duyệt riêng.
+
+
+### Lịch sử cập nhật – 28/11/2026
+
+Bổ sung các yêu cầu mới của chủ dự án về định hướng HTS, 30 chức năng thuộc phân hệ Lực lượng vũ trang, kế hoạch triển khai 08 giai đoạn, cơ chế giao việc Copilot tuần tự, dịch vụ giáo dục dùng chung, AI, feature flag và các kiểm soát an toàn. Hai mẫu báo cáo Công đoàn/quân trang được giữ độc lập, có kiểm soát dữ liệu và phê duyệt.

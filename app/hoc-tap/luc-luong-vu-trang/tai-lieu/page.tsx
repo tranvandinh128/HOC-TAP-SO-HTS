@@ -153,14 +153,27 @@ export default async function TaiLieuPage() {
 
         <section className="mt-8 rounded-xl border border-blue-200 bg-blue-50 p-6">
           <h2 className="font-bold text-blue-900">
-            Trạng thái triển khai
+            Trạng thái quản lý học liệu
           </h2>
           <p className="mt-2 text-sm leading-6 text-blue-800">
-            Trang hiện xây dựng giao diện và danh mục tài liệu.
-            Chức năng tìm kiếm thực tế, tải lên, phân loại,
-            xem trực tuyến và phân quyền khai thác sẽ được
-            kết nối cơ sở dữ liệu trong giai đoạn tiếp theo.
+            Quản lý tài liệu PDF/Word theo bài học đã được thiết kế trong chi
+            tiết chương trình: lưu phiên bản riêng tư, ghi nguồn và quyền sử
+            dụng, trình rà soát và chỉ hiển thị phiên bản đã duyệt cho người
+            học. Các danh mục trên trang này là hướng dẫn, không phải danh sách
+            tài liệu thực tế; trang tìm kiếm thư viện tổng hợp chưa được triển
+            khai.
           </p>
+          <p className="mt-3 text-sm leading-6 text-blue-800">
+            Tải tệp thực tế cần cấu hình kho R2 riêng tư và áp dụng các migration
+            đã được chủ dự án duyệt. Khi chưa sẵn sàng, hệ thống báo lỗi rõ ràng
+            và không ghi nhận tệp như đã tải thành công.
+          </p>
+          <Link
+            href="/hoc-tap/luc-luong-vu-trang/dao-tao"
+            className="mt-4 inline-flex rounded-lg bg-blue-800 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-900"
+          >
+            Mở danh mục chương trình đào tạo
+          </Link>
         </section>
 
         <div className="mt-8">
