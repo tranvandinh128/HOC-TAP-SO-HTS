@@ -7,7 +7,12 @@ node_modules/
 out/
 build/
 
-# Environment variables
+# OpenNext / Cloudflare build artifacts
+.open-next/
+.wrangler/
+.dev.vars
+
+# Environment variables and secrets
 .env
 .env.*
 !.env.example
@@ -22,6 +27,11 @@ pnpm-debug.log*
 
 # TypeScript
 *.tsbuildinfo
+
+# Backup files
+*.bak
+*.backup
+*~
 
 # Operating system
 .DS_Store
