@@ -1,0 +1,60 @@
+-- PROPOSAL ONLY. NOT A MIGRATION.
+-- Do not execute against production or local D1 until schema inventory,
+-- identity integration, data retention, threat model, and approval are complete.
+-- DTC stores metadata and encrypted envelopes only; never private keys/plaintext.
+
+CREATE TABLE IF NOT EXISTS dtc_key_registry (
+  id TEXT PRIMARY KEY,
+  hts_user_id TEXT NOT NULL,
+  key_purpose TEXT NOT NULL CHECK (key_purpose IN ('signing_public', 'encryption_public')),
+  public_key_jwk TEXT NOT NULL,
+  algorithm TEXT NOT NULL,
+  key_version INTEGER NOT NULL,
+  status TEXT NOT NULL CHECK (status IN ('pending', 'active', 'revoked')),
+  created_at TEXT NOT NULL,
+  revoked_at TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_dtc_key_registry_user_status
+  ON dtc_key_registry (hts_user_id, status);
+
+CREATE TABLE IF NOT EXISTS dtc_encrypted_packages (
+  id TEXT PRIMARY KEY,
+  sender_hts_user_id TEXT NOT NULL,
+  package_metadata_json TEXT NOT NULL,
+  ciphertext_object_key TEXT NOT NULL,
+  algorithm_suite TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  expires_at TEXT,
+  status TEXT NOT NULL CHECK (status IN ('queued', 'available', 'expired', 'revoked'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_dtc_packages_sender_created
+  ON dtc_encrypted_packages (sender_hts_user_id, created_at);
+
+CREATE TABLE IF NOT EXISTS dtc_package_recipients (
+  id TEXT PRIMARY KEY,
+  package_id TEXT NOT NULL REFERENCES dtc_encrypted_packages(id),
+  recipient_hts_user_id TEXT NOT NULL,
+  recipient_key_id TEXT NOT NULL REFERENCES dtc_key_registry(id),
+  wrapped_content_key TEXT NOT NULL,
+  delivery_status TEXT NOT NULL CHECK (delivery_status IN ('pending', 'delivered', 'received', 'revoked')),
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_dtc_recipients_user_status
+  ON dtc_package_recipients (recipient_hts_user_id, delivery_status);
+
+CREATE TABLE IF NOT EXISTS dtc_audit_events (
+  id TEXT PRIMARY KEY,
+  actor_hts_user_id TEXT NOT NULL,
+  action TEXT NOT NULL,
+  target_type TEXT NOT NULL,
+  target_id TEXT,
+  outcome TEXT NOT NULL,
+  event_metadata_json TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_dtc_audit_actor_created
+  ON dtc_audit_events (actor_hts_user_id, created_at);
